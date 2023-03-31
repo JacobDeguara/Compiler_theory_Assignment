@@ -4,3 +4,5 @@ comp
 Calculator
 Calculator.cpp
 Lexer.h
+test
+main.cpp
