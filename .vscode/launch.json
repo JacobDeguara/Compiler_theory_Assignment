@@ -11,7 +11,7 @@
             "program": "/home/jacob/coding2/CompilerTheory/a.out",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "$Calculator/cpp",
+            "cwd": "$PixArLangComplier",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

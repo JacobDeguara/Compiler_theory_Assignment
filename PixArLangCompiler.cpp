@@ -9,8 +9,8 @@ int main()
 {
     Lexer lexer = Lexer();
     lexer.set_up_file("test.txt");
-    lexer.get_next();
-    lexer.get_next();
-    lexer.get_next();
-    lexer.get_next();
+
+    while (get<token_type>(lexer.get_next()) != ENDOFFILE)
+    {
+    };
 }
