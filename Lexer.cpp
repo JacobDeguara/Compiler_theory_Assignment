@@ -23,6 +23,7 @@ enum token_type
     StatmentOp,
     UnaryOp,
     HexIdentifier,
+    Comment,
 };
 
 class Lexer
@@ -38,8 +39,8 @@ private:
     // closes the file
     void close_file(ifstream &file);
 
-    // table_driven_parser
-    tuple<string, token_type> table_driven_parser(ifstream &file);
+    // get_next_token
+    tuple<string, token_type> get_next_token(ifstream &file);
 
 public:
     Lexer();
@@ -91,7 +92,7 @@ void Lexer::close_file(ifstream &file)
     file.close();
 };
 
-tuple<string, token_type> Lexer::table_driven_parser(ifstream &file)
+tuple<string, token_type> Lexer::get_next_token(ifstream &file)
 {
     string temp;
     char c;
@@ -106,9 +107,15 @@ tuple<string, token_type> Lexer::table_driven_parser(ifstream &file)
         c = file.peek();
         switch (c)
         {
+        case -1:
+            if (temp.size() > 0)
+                return {temp, Identifier};
+            c = file.get();
+            break;
         case ' ':
             if (temp.size() > 0)
                 return {temp, Identifier};
+            c = file.get();
             break;
         case '\n':
             c = file.get();
@@ -185,19 +192,38 @@ tuple<string, token_type> Lexer::table_driven_parser(ifstream &file)
             }
             return {temp, Identifier};
             break;
-        case '/':
-            if (temp.size() == 0)
-            {
-                c = file.get();
-                return {"/", MultiplicativeOp};
-            }
-            return {temp, Identifier};
-            break;
         case '#':
             if (temp.size() == 0)
             {
                 c = file.get();
                 return {"#", HexIdentifier};
+            }
+            return {temp, Identifier};
+            break;
+        case '/':
+            if (temp.size() == 0)
+            {
+                temp.push_back(file.get());
+                c = file.peek();
+                if (c == '/')
+                {
+                    temp.push_back(file.get());
+                    c = file.get();
+                    while (file.good())
+                    {
+                        if (c == '\n')
+                        {
+                            break;
+                        }
+                        temp.push_back(c);
+                        c = file.get();
+                    }
+                    return {temp, Comment};
+                }
+                else
+                {
+                    return {temp, ExceptionCharacter};
+                }
             }
             return {temp, Identifier};
             break;
@@ -288,9 +314,9 @@ tuple<string, token_type> Lexer::table_driven_parser(ifstream &file)
             break;
         }
 
-        c = file.get();
         if (c != ' ' && c != '\n')
         {
+            c = file.get();
             temp.push_back(c);
         }
     }
@@ -301,10 +327,19 @@ tuple<string, token_type> Lexer::get_next()
 {
     // open file
     auto file(open_file());
+
     // get token
-    auto token = table_driven_parser(file);
+    auto token = get_next_token(file);
 
     cout << " String(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
+
+    /* identifier is the base case for every token
+     * now we are gana check the identifier token is correct
+     * by using a table driven FSA for stuff like Integer, Float, Colour, ect...
+     */
+    if (get<token_type>(token) == Identifier)
+    {
+    }
 
     // close file
     close_file(file);
