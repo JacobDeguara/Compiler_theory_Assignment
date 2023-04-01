@@ -4,31 +4,17 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <map>
+
+#include "enums.h"
+#include "FSA.cpp"
 
 using namespace std;
-
-enum token_type
-{
-    ENDOFFILE,
-    ExceptionCharacter,
-    Type,
-    Boolean,
-    Integer,
-    Float,
-    Colour,
-    MultiplicativeOp,
-    AdditiveOp,
-    RelationalOp,
-    Identifier,
-    StatmentOp,
-    UnaryOp,
-    HexIdentifier,
-    Comment,
-};
 
 class Lexer
 {
 private:
+    FSA fsa = FSA();
     string file_name;
     long pos;
     tuple<string, token_type> current_token;
@@ -41,6 +27,8 @@ private:
 
     // get_next_token
     tuple<string, token_type> get_next_token(ifstream &file);
+
+    tuple<string, token_type> identify(tuple<string, token_type> token, FSA fsa);
 
 public:
     Lexer();
@@ -192,14 +180,6 @@ tuple<string, token_type> Lexer::get_next_token(ifstream &file)
             }
             return {temp, Identifier};
             break;
-        case '#':
-            if (temp.size() == 0)
-            {
-                c = file.get();
-                return {"#", HexIdentifier};
-            }
-            return {temp, Identifier};
-            break;
         case '/':
             if (temp.size() == 0)
             {
@@ -323,6 +303,63 @@ tuple<string, token_type> Lexer::get_next_token(ifstream &file)
     return {"END OF FILE", ENDOFFILE};
 }
 
+tuple<string, token_type> Lexer::identify(tuple<string, token_type> token, FSA fsa)
+{
+    auto token_name = get<string>(token);
+    auto type = fsa.StartNFSA(token_name);
+    if (type == ENDOFFILE)
+    {
+        cerr << "Syntax Error: " << token_name << " has wrong syntax" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (type == Identifier)
+    {
+        if (token_name.compare("float") == 0 || token_name.compare("int") == 0 || token_name.compare("bool") == 0 || token_name.compare("colour") == 0)
+        {
+            type = Type;
+        }
+        else if (token_name.compare("return") == 0 || token_name.compare("if") == 0 || token_name.compare("for") == 0 || token_name.compare("while") == 0)
+        {
+            type = StatementOp;
+        }
+        else if (token_name.compare("and") == 0)
+        {
+            type = MultiplicativeOp;
+        }
+        else if (token_name.compare("or") == 0)
+        {
+            type = AdditiveOp;
+        }
+        else if (token_name.compare("not") == 0)
+        {
+            type = UnaryOp;
+        }
+        else if (token_name.compare("__width") == 0 || token_name.compare("__height") == 0 || token_name.compare("__read") == 0 || token_name.compare("__randi") == 0)
+        {
+            type = PadOp;
+        }
+        else if (token_name.compare("true") == 0 || token_name.compare("false") == 0)
+        {
+            type = BooleanLiteral;
+        }
+        else if (token_name.compare("let") == 0)
+        {
+            type = Declarator;
+        }
+        else if (token_name.compare("__print") == 0 || token_name.compare("__delay") == 0 || token_name.compare("__pixelr") == 0 || token_name.compare("__pixel") == 0)
+        {
+            type = SpecialStatementsOp;
+        }
+        else if (token_name.compare("fun") == 0)
+        {
+            type = Func;
+        }
+    }
+
+    return {token_name, type};
+}
+
 tuple<string, token_type> Lexer::get_next()
 {
     // open file
@@ -330,6 +367,13 @@ tuple<string, token_type> Lexer::get_next()
 
     // get token
     auto token = get_next_token(file);
+
+    // dont give comments to the parser, we ignore them.
+    while (get<token_type>(token) == Comment)
+    {
+        cout << "-- lexer note: comment ignored --" << endl;
+        token = get_next_token(file);
+    }
 
     cout << " String(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
 
@@ -339,12 +383,16 @@ tuple<string, token_type> Lexer::get_next()
      */
     if (get<token_type>(token) == Identifier)
     {
+        token = identify(token, fsa);
+        cout << "-- Token type changed to: " << get<token_type>(token) << " --" << endl;
     }
 
     // close file
     close_file(file);
 
+    // set current token
     this->current_token = token;
+
     // give token
     return token;
 };

@@ -3,8 +3,6 @@
 
 #include "Lexer.cpp"
 
-bool run(const string &file_name);
-
 int main()
 {
     Lexer lexer = Lexer();
