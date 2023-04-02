@@ -1,49 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <memory>
-#include <string>
-#include <tuple>
-#include <map>
-
-#include "enums.h"
-#include "FSA.cpp"
-
-using namespace std;
-
-class Lexer
-{
-private:
-    FSA fsa = FSA();
-    string file_name;
-    long pos;
-    tuple<string, token_type> current_token;
-
-    // opens the file
-    ifstream open_file();
-
-    // closes the file
-    void close_file(ifstream &file);
-
-    // get_next_token
-    tuple<string, token_type> get_next_token(ifstream &file);
-
-    tuple<string, token_type> identify(tuple<string, token_type> token, FSA fsa);
-
-public:
-    Lexer();
-
-    // sets up the Lexer
-    bool set_up_file(const string &file_name);
-
-    // will give the next token
-    tuple<string, token_type> get_next();
-
-    // will give the string file_nametoken given before
-    tuple<string, token_type> get_current();
-
-    ~Lexer();
-};
+#include "Lexer.h"
 
 Lexer::Lexer(){};
 
@@ -303,7 +258,7 @@ tuple<string, token_type> Lexer::get_next_token(ifstream &file)
     return {"END OF FILE", ENDOFFILE};
 }
 
-tuple<string, token_type> Lexer::identify(tuple<string, token_type> token, FSA fsa)
+tuple<string, token_type> Lexer::identify(tuple<string, token_type> token)
 {
     auto token_name = get<string>(token);
     auto type = fsa.StartNFSA(token_name);
@@ -371,11 +326,13 @@ tuple<string, token_type> Lexer::get_next()
     // dont give comments to the parser, we ignore them.
     while (get<token_type>(token) == Comment)
     {
-        cout << "-- lexer note: comment ignored --" << endl;
+        // this is for testing purpuses
+        // cout << "-- lexer note: comment ignored --" << endl;
         token = get_next_token(file);
     }
 
-    cout << " String(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
+    // this is for testing purpuses
+    // cout << " String(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
 
     /* identifier is the base case for every token
      * now we are gana check the identifier token is correct
@@ -383,9 +340,13 @@ tuple<string, token_type> Lexer::get_next()
      */
     if (get<token_type>(token) == Identifier)
     {
-        token = identify(token, fsa);
-        cout << "-- Token type changed to: " << get<token_type>(token) << " --" << endl;
+        token = identify(token);
+        // this is for testing purpuses
+        //  cout << "-- Token type changed to: " << get<token_type>(token) << " --" << endl;
     }
+
+    // this is for testing purpuses
+    cout << " String(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
 
     // close file
     close_file(file);

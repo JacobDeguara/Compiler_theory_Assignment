@@ -10,6 +10,5 @@ int main()
 
     while (get<token_type>(lexer.get_next()) != ENDOFFILE)
     {
-        cout << get<string>(lexer.get_current()) << endl;
     };
 }
