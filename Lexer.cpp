@@ -62,6 +62,8 @@ tuple<string, token_type> Lexer::get_next_token(ifstream &file)
             break;
         case '\n':
             c = file.get();
+            if (temp.size() > 0)
+                return {temp, Identifier};
             break;
         case '(':
             if (temp.size() == 0)
@@ -274,7 +276,7 @@ tuple<string, token_type> Lexer::identify(tuple<string, token_type> token)
         {
             type = Type;
         }
-        else if (token_name.compare("return") == 0 || token_name.compare("if") == 0 || token_name.compare("for") == 0 || token_name.compare("while") == 0)
+        else if (token_name.compare("return") == 0 || token_name.compare("if") == 0 || token_name.compare("for") == 0 || token_name.compare("while") == 0 || token_name.compare("else") == 0)
         {
             type = StatementOp;
         }

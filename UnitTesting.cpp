@@ -144,7 +144,7 @@ void test_FSA_unit_tests()
     test_is_hex_succeeds(fsa);
     test_is_digit_fails(fsa);
     test_is_digit_succeeds(fsa);
-    fsa.printMap();
+    // fsa.printMap();
     test_NFSA_Hex(fsa);
     test_NFSA_HexFail(fsa);
     test_NFSA_Integer(fsa);
