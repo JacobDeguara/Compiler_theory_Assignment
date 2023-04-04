@@ -38,40 +38,40 @@ enum state
     IdentifierState, // IdentifierState ; -> <digit> | <letter> | '_' -> IdentifierState
     DefaultState,    // anything that isnt what we stated -> DefaultState
 };
-
+// [ ] ::= do once or none / { } ::= do many times or none / '%s' speacific string
 enum AST_token
 {
     AST_ENDOFFILE,    // end of file
-    SUCCESS,          // No error in the process
-    FAIL,             // An error in the process
-    PROGRAM,          // ::= { 〈Statement〉 }
-    STATEMENT,        // ::= 〈VariableDecl〉 ‘;’ | 〈Assignment〉 ‘;’ | 〈PrintStatement〉 ‘;’| 〈DelayStatement〉 ‘;’ | 〈PixelStatement〉 ‘;’ | 〈IfStatement〉 | 〈ForStatement〉 | 〈WhileStatement〉 | 〈RtrnStatement〉 ‘;’ | 〈FunctionDecl〉 | 〈Block〉
-    BLOCK,            // ::= ‘{’ { 〈Statement〉 } ‘}’
-    FUNCTION_DECL,    // ::= ‘fun’ 〈Identifier〉 ‘(’ [ 〈FormalParams〉 ] ‘)’ ‘->’ 〈Type〉〈Block〉
-    FORMAL_PARAMS,    // ::= 〈FormalParam〉 { ‘,’ 〈FormalParam〉 }
-    FORMAL_PARAMETER, // ::= 〈Identifier 〉 ‘:’ 〈Type〉
-    WHILE_STATEMENT,  // ::= ‘while’ ‘(’ 〈Expr〉 ‘)’ 〈Block〉
-    FOR_STATEMENT,    // ::= ‘for’ ‘(’ [ 〈VariableDecl〉 ] ’;’ 〈Expr〉 ’;’ [ 〈Assignment〉 ] ‘)’ 〈Block〉
-    IF_STATEMENT,     // ::= ‘if’ ‘(’ 〈Expr〉 ‘)’ 〈Block〉 [ ‘else’ 〈Block〉 ]
-    RTRN_STATEMENT,   // ::=  ‘return’ 〈Expr〉
-    PIXEL_STATEMENT,  // ::= ‘__pixelr’ 〈Expr〉‘,’〈Expr〉‘,’〈Expr〉‘,’〈Expr〉‘,’〈Expr〉| ‘__pixel’ 〈Expr〉‘,’〈Expr〉‘,’〈Expr〉
-    PRINT_STATEMENT,  // ::= ‘__print’ 〈Expr
-    DELAY_STATEMENT,  // ::= ‘__delay’ 〈Expr〉
-    VARIABLE_DECL,    // ::= ‘let’ 〈Identifier〉 ‘:’ 〈Type〉 ‘=’ 〈Expr〉
-    ASSIGNMENT,       // ::= 〈Identifier〉 ‘=’ 〈Expr〉
-    EXPR,             // ::= 〈SimpleExpr〉 { 〈RelationalOp〉 〈SimpleExpr〉 }
-    SIMPLE_EXPR,      // ::= 〈Term〉 { 〈AdditiveOp〉 〈Term〉 }
-    TERM,             // ::= 〈Factor〉 { 〈MultiplicativeOp〉 〈Factor〉 }
-    FACTOR,           // ::= 〈Literal〉 | 〈Identifier〉 | 〈FunctionCall〉 | 〈SubExpr〉 | 〈Unary〉 | 〈PadRandI〉 | 〈PadWidth〉 | 〈PadHeight〉 | 〈PadRead〉
-    LITERAL,          // ::= 〈BooleanLiteral〉 | 〈IntegerLiteral〉 | 〈FloatLiteral〉 | 〈ColourLiteral〉 | 〈PadWidth〉 | 〈PadHeight〉 | 〈PadRead〉
-    FUNCTION_CALL,    // ::= 〈Identifier 〉 ‘(’ [ 〈ActualParams〉 ] ‘)’
-    SUB_EXPR,         //  ::= ‘(’ 〈Expr 〉 ‘)’
-    UNARY,            // ::= ( ‘-’ | ‘not’ | ‘!’ ) 〈Expr〉
-    PAD_RANDI,        // :: = ‘__randi’ 〈Expr
-    PAD_READ,         //  :: = ‘__read’ 〈Expr〉‘,’〈Expr〉
-    ACTUAL_PARAMS,    // ::= 〈Expr 〉 { ‘,’ 〈Expr 〉 }
-    PAD_WIDTH,        // ::= ‘__width’
-    PAD_HEIGHT,       // ::= ‘__height’
+    SUCCESS,          // Regular expression suceeded
+    FAIL,             // An error was found in the process
+    PROGRAM,          // ::= { <Statement> }
+    STATEMENT,        // ::= <VariableDecl> ';' | <Assignment> ';' | <PrintStatement> ';'| <DelayStatement> ';' | <PixelStatement> ';' | <IfStatement> | <ForStatement> | <WhileStatement> | <RtrnStatement> ';' | <FunctionDecl> | <Block>
+    BLOCK,            // ::= '{' { <Statement> } '}'
+    FUNCTION_DECL,    // ::= 'fun' <Identifier> '(' [ <FormalParams> ] ')' '->' <Type><Block>
+    FORMAL_PARAMS,    // ::= <FormalParam> { ',' <FormalParam> }
+    FORMAL_PARAMETER, // ::= <Identifier > ':' <Type>
+    WHILE_STATEMENT,  // ::= 'while' '(' <Expr> ')' <Block>
+    FOR_STATEMENT,    // ::= 'for' '(' [ <VariableDecl> ] ';' <Expr> ';' [ <Assignment> ] ')' <Block>
+    IF_STATEMENT,     // ::= 'if' '(' <Expr> ')' <Block> [ 'else' <Block> ]
+    RTRN_STATEMENT,   // ::=  'return' <Expr>
+    PIXEL_STATEMENT,  // ::= '__pixelr' <Expr>','<Expr>','<Expr>','<Expr>','<Expr>| '__pixel' <Expr>','<Expr>','<Expr>
+    PRINT_STATEMENT,  // ::= '__print' <Expr
+    DELAY_STATEMENT,  // ::= '__delay' <Expr>
+    VARIABLE_DECL,    // ::= 'let' <Identifier> ':' <Type> '=' <Expr>
+    ASSIGNMENT,       // ::= <Identifier> '=' <Expr>
+    EXPR,             // ::= <SimpleExpr> { <RelationalOp> <SimpleExpr> }
+    SIMPLE_EXPR,      // ::= <Term> { <AdditiveOp> <Term> }
+    TERM,             // ::= <Factor> { <MultiplicativeOp> <Factor> }
+    FACTOR,           // ::= <Literal> | <Identifier> | <FunctionCall> | <SubExpr> | <Unary> | <PadRandI> | <PadWidth> | <PadHeight> | <PadRead>
+    LITERAL,          // ::= <BooleanLiteral> | <IntegerLiteral> | <FloatLiteral> | <ColourLiteral> | <PadWidth> | <PadHeight> | <PadRead>
+    FUNCTION_CALL,    // ::= <Identifier> '(' [ <ActualParams> ] ')'
+    SUB_EXPR,         //  ::= '(' <Expr> ')'
+    UNARY,            // ::= ( '-' | 'not' | '!' ) <Expr>
+    PAD_RANDI,        // :: = '__randi' <Expr>
+    PAD_READ,         //  :: = '__read' <Expr>','<Expr>
+    ACTUAL_PARAMS,    // ::= <Expr > { ',' <Expr> }
+    PAD_WIDTH,        // ::= '__width'
+    PAD_HEIGHT,       // ::= '__height'
     IDENTIFIER,       // ::= <identifier(token_type)>
     BOOL_LITERAL,     // ::= <BooleanLiteral(token_type)>
     INTEGER_LITERAL,  // ::= <IntegerLiteral(token_type)>
