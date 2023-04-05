@@ -1,6 +1,10 @@
 #ifndef __ENUMS_H__
 #define __ENUMS_H__
 
+#include <string>
+#include <vector>
+#include <memory>
+
 enum token_type
 {
     ENDOFFILE,           // end of file or errors
@@ -65,11 +69,11 @@ enum AST_token
     FACTOR,           // ::= <Literal> | <Identifier> | <FunctionCall> | <SubExpr> | <Unary> | <PadRandI> | <PadWidth> | <PadHeight> | <PadRead>
     LITERAL,          // ::= <BooleanLiteral> | <IntegerLiteral> | <FloatLiteral> | <ColourLiteral> | <PadWidth> | <PadHeight> | <PadRead>
     FUNCTION_CALL,    // ::= <Identifier> '(' [ <ActualParams> ] ')'
-    SUB_EXPR,         //  ::= '(' <Expr> ')'
+    SUB_EXPR,         // ::= '(' <Expr> ')'
     UNARY,            // ::= ( '-' | 'not' | '!' ) <Expr>
     PAD_RANDI,        // :: = '__randi' <Expr>
-    PAD_READ,         //  :: = '__read' <Expr>','<Expr>
-    ACTUAL_PARAMS,    // ::= <Expr > { ',' <Expr> }
+    PAD_READ,         // :: = '__read' <Expr>','<Expr>
+    ACTUAL_PARAMS,    // ::= <Expr> { ',' <Expr> }
     PAD_WIDTH,        // ::= '__width'
     PAD_HEIGHT,       // ::= '__height'
     IDENTIFIER,       // ::= <identifier(token_type)>
@@ -82,8 +86,8 @@ enum AST_token
 struct ASTree
 {
     AST_token token;
-    string text;
-    vector<shared_ptr<ASTree>> Leaf;
+    std::string text;
+    std::vector<std::shared_ptr<ASTree>> Leaf;
 };
 
 #endif // __ENUMS_H__

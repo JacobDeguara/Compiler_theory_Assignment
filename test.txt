@@ -1,11 +1,9 @@
 
-let x:int=5;
-let y:int=x+1;
 if(x>y)
 {
-    _pad_print(x);
+    __print x ;
 }
 else 
 {
-    _pad_print(y);
+    __print y;
 }
