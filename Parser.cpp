@@ -1239,7 +1239,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
 
         if (next_token_type != AdditiveOp)
         {
-            return {SUCCESS, head_tree};
+            // head_tree->Leaf.at(0) to remove the Simple_Expr node part
+            return {SUCCESS, head_tree->Leaf.at(0)};
         }
 
         // empty the last node in next_node
@@ -1303,7 +1304,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
 
         if (next_token_type != MultiplicativeOp)
         {
-            return {SUCCESS, head_tree};
+            // head_tree->Leaf.at(0) to remove the Simple_Expr node part
+            return {SUCCESS, head_tree->Leaf.at(0)};
         }
 
         // empty the next_node
