@@ -2,13 +2,10 @@
 #include <fstream>  // std::ifstream
 
 #include "Parser.cpp"
+#include "AST_XML_gen.cpp"
 
 int main()
 {
     Parser parser = Parser("test.txt");
-    parser.Compile();
-
-    Lexer lexer = Lexer();
-    lexer.set_up_file("test.txt");
-    // while (get<token_type>(lexer.get_next()) != ENDOFFILE)
+    auto result = parser.Compile(false, true, false);
 }

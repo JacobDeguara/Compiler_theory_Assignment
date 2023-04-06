@@ -21,6 +21,7 @@ private:
     string file_name;
     long pos;
     tuple<string, token_type> current_token;
+    bool echo = false;
 
     // opens the file
     ifstream open_file();
@@ -45,6 +46,9 @@ public:
 
     // will give the string file_nametoken given before
     tuple<string, token_type> get_current();
+
+    // sets echo for testing
+    void set_echo(bool echo);
 
     ~Lexer();
 };

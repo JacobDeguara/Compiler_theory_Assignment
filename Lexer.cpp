@@ -348,7 +348,10 @@ tuple<string, token_type> Lexer::get_next()
     }
 
     // this is for testing purpuses
-    cout << " String(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
+    if (echo)
+    {
+        cout << " Token(" << get<string>(token) << ") -> Token type: " << get<token_type>(token) << endl;
+    }
 
     // close file
     close_file(file);
@@ -364,5 +367,10 @@ tuple<string, token_type> Lexer::get_current()
 {
     return current_token;
 };
+
+void Lexer::set_echo(bool echo)
+{
+    this->echo = echo;
+}
 
 Lexer::~Lexer(){};
