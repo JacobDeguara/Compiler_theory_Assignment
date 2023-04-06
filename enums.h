@@ -81,6 +81,10 @@ enum AST_token
     INTEGER_LITERAL,  // ::= <IntegerLiteral(token_type)>
     FLOAT_LITERAL,    // ::= <FloatLiteral(token_type)>
     COLOUR_LITERAL,   // ::= <ColourLiteral(token_type)>
+    RELATIONALOP,     // ::= '<' | '>' | '==' | '!=' | '<=' | '>='
+    ADDITIVEOP,       // ::= '*' | '/' | 'and'
+    MULTIPLICATIVEOP, // ::= '+' | '-' | 'or'
+    TYPE,             // ::= 'float' | 'int' | 'bool' | 'colour'
 };
 
 struct ASTree

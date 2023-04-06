@@ -129,6 +129,7 @@ Only function that can break this rule is Program since we are gana start with i
 tuple<AST_token, shared_ptr<ASTree>> Parser::Program()
 {
     // Program ::= { <Statement> } 'EOF'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PROGRAM);
 
     AST_token result;
     shared_ptr<ASTree> tree;
@@ -142,13 +143,15 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Program()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+
+        head_tree->Leaf.push_back(tree);
 
         current_token = lexer.get_current(); // RULE 3
         current_token_type = get<token_type>(current_token);
     }
-    return {SUCCESS, NULL};
+    return {SUCCESS, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
@@ -159,6 +162,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
      *  <WhileStatement> | <RtrnStatement> ';' | <FunctionDecl> |
      *  <Block>
      */
+    shared_ptr<ASTree> head_tree = ASTree_node_create(STATEMENT);
+
     auto current_token = lexer.get_current(); // RULE 3
     auto current_token_type = get<token_type>(current_token);
     auto current_token_string = get<string>(current_token);
@@ -179,13 +184,15 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
             if (current_token_string.compare(";") == 0)
             {
+                head_tree->Leaf.push_back(tree);
+
                 lexer.get_next();
-                return {SUCCESS, NULL};
+                return {SUCCESS, head_tree};
             }
         }
 
         cerr << "Syntax Error: missing ';' after variable decliration" << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
         break;
     case Identifier: // <Assignment> ';'
 
@@ -194,7 +201,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
 
         // ';'
@@ -203,12 +210,14 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
         if (current_token_string.compare(";") == 0)
         {
+            head_tree->Leaf.push_back(tree);
+
             lexer.get_next();
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
         }
 
         cerr << "Syntax Error: missing ';' after variable decliration" << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
         break;
     case SpecialStatementsOp: // <PrintStatement> ';'| <DelayStatement> ';' | <PixelStatement> ';'
 
@@ -226,14 +235,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
                 if (current_token_string.compare(";") == 0)
                 {
+                    head_tree->Leaf.push_back(tree);
+
                     lexer.get_next();
-                    return {SUCCESS, NULL};
+                    return {SUCCESS, head_tree};
                 }
                 break;
             }
             else
             {
-                return {FAIL, NULL};
+                return {FAIL, head_tree};
             }
         }
         else if (current_token_string.compare("__delay") == 0) // <DelayStatement> ';'
@@ -248,14 +259,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
                 if (current_token_string.compare(";") == 0)
                 {
+                    head_tree->Leaf.push_back(tree);
+
                     lexer.get_next();
-                    return {SUCCESS, NULL};
+                    return {SUCCESS, head_tree};
                 }
                 break;
             }
             else
             {
-                return {FAIL, NULL};
+                return {FAIL, head_tree};
             }
         }
         else // <PixelStatement> ';'
@@ -270,19 +283,21 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
                 if (current_token_string.compare(";") == 0)
                 {
+                    head_tree->Leaf.push_back(tree);
+
                     lexer.get_next();
-                    return {SUCCESS, NULL};
+                    return {SUCCESS, head_tree};
                 }
                 break;
             }
             else
             {
-                return {FAIL, NULL};
+                return {FAIL, head_tree};
             }
         }
 
         cerr << "Syntax Error: missing ';' after variable decliration" << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
         break;
     case StatementOp: // <IfStatement> | <ForStatement> | <WhileStatement> | <RtrnStatement> ';'
 
@@ -294,7 +309,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL};
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree};
             }
         }
         else if (current_token_string.compare("for") == 0) // <ForStatement>
@@ -303,7 +319,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL};
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree};
             }
         }
         else if (current_token_string.compare("while") == 0) // <WhileStatement>
@@ -313,7 +330,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL};
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree};
             }
         }
         else // <RtrnStatement> ';'
@@ -328,13 +346,15 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
                 if (current_token_string.compare(";") == 0)
                 {
+                    head_tree->Leaf.push_back(tree);
+
                     lexer.get_next();
-                    return {SUCCESS, NULL};
+                    return {SUCCESS, head_tree};
                 }
                 else
                 {
                     cerr << "Syntax Error: missing ';' after variable decliration" << endl;
-                    return {FAIL, NULL};
+                    return {FAIL, head_tree};
                 }
                 break;
             }
@@ -345,7 +365,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL};
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree};
         }
         break;
     case ExceptionCharacter: // <Block>
@@ -353,18 +374,20 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
 
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL};
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree};
         }
         break;
     default:
         break;
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Block()
 {
     // Block ::= '{' { <Statement> } '}'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(BLOCK);
 
     // '{'
     auto current_token = lexer.get_current(); // RULE 3
@@ -373,7 +396,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Block()
     if (current_token_string.compare("{") != 0)
     {
         cerr << "Syntax Error: missing '{' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // { <Statement> } '}'
@@ -389,10 +412,11 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Block()
 
         if (result == SUCCESS)
         {
+            head_tree->Leaf.push_back(tree);
         }
         else
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
 
         next_token = lexer.get_current(); // RULE 3
@@ -403,15 +427,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Block()
     if (next_token_string.compare("}") == 0)
     {
         lexer.get_next();
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
     }
     cerr << "Syntax Error: missing '}'" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 {
     // Function_Decl ::= 'fun' <Identifier> '(' [ <FormalParams> ] ')' '->' <Type> <Block>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(FUNCTION_DECL);
 
     // 'fun'
     auto current_token = lexer.get_current(); // RULE 3
@@ -420,27 +445,32 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
     if (current_token_type != Func)
     {
         cerr << "FAILED CODE: Function_Decl() at if(current_token_type != Func)" << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Identifier>
     auto next_token = lexer.get_next();
     auto next_token_type = get<token_type>(next_token);
+    auto next_token_string = get<string>(next_token);
 
     if (next_token_type != Identifier)
     {
         cerr << "Syntax Error: missing Identifier" << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    auto Identifier_node = ASTree_node_create(IDENTIFIER);
+    Identifier_node->text = next_token_string;
+    head_tree->Leaf.push_back(Identifier_node);
 
     // '('
     next_token = lexer.get_next();
-    auto next_token_string = get<string>(next_token);
+    next_token_string = get<string>(next_token);
 
     if (next_token_string.compare("(") != 0)
     {
         cerr << "Syntax Error: missing '(' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // [ <FormalParams> ] | ')'
@@ -456,8 +486,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
         if (result == FAIL)
         {
             cerr << "Possible? Syntax Error: missing ')' " << endl;
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+
+        head_tree->Leaf.push_back(tree);
 
         // ')'
         current_token = lexer.get_current();
@@ -466,7 +498,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
         if (current_token_string.compare(")") != 0)
         {
             cerr << "Syntax Error: missing ')' " << endl;
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
     }
 
@@ -477,18 +509,23 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
     if (next_token_string.compare("->") != 0)
     {
         cerr << "Syntax Error: missing '->' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Type>
     next_token = lexer.get_next();
     next_token_type = get<token_type>(next_token);
+    next_token_string = get<string>(next_token);
 
     if (next_token_type != Type)
     {
         cerr << "Syntax Error: missing type declaration " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    auto Type_node = ASTree_node_create(TYPE);
+    Type_node->text = next_token_string;
+    head_tree->Leaf.push_back(Type_node);
 
     // <Block>
     lexer.get_next(); // RULE 2
@@ -496,14 +533,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Params()
 {
     // Formal_Params ::= <FormalParam> { ',' <FormalParam> }
+    shared_ptr<ASTree> head_tree = ASTree_node_create(FORMAL_PARAMS);
 
     // <FormalParameter>
     AST_token result;
@@ -512,8 +551,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Params()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->Leaf.push_back(tree);
 
     // { ','  <FormalParameter>}
     while (1)
@@ -524,7 +565,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Params()
 
         if (current_token_string.compare(",") != 0)
         {
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
         }
 
         // <FormalParameter>
@@ -533,26 +574,33 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Params()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+        head_tree->Leaf.push_back(tree);
     }
     cerr << "CODE FAILED: failed while(1){}" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Parameter()
 {
     // Formal_Parameter ::= <Identifier> ':' <Type>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(FORMAL_PARAMETER);
 
     // <Identifier>
     auto current_token = lexer.get_current(); // RULE 3
     auto current_token_type = get<token_type>(current_token);
+    auto current_token_string = get<string>(current_token);
 
     if (current_token_type != Identifier)
     {
         cerr << "Syntax Error: missing identifier" << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    auto Identifier_node = ASTree_node_create(IDENTIFIER);
+    Identifier_node->text = current_token_string;
+    head_tree->Leaf.push_back(Identifier_node);
 
     // ':'
     auto next_token = lexer.get_next();
@@ -561,24 +609,30 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Parameter()
     if (next_token_string.compare(":") != 0)
     {
         cerr << "Syntax Error: missing ':' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Type>
     next_token = lexer.get_next();
     auto next_token_type = get<token_type>(next_token);
+    next_token_string = get<string>(next_token);
 
     if (next_token_type == Type)
     {
+        auto Type_node = ASTree_node_create(TYPE);
+        Type_node->text = next_token_string;
+        head_tree->Leaf.push_back(Type_node);
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 {
     // While_Statement ::= 'while' '(' <Expr> ')' <Block>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(WHILE_STATEMENT);
 
     // 'while'
     auto current_token = lexer.get_current(); // RULE 3
@@ -586,7 +640,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (current_token_string.compare("while") != 0)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // '('
@@ -596,7 +650,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
     if (next_token_string.compare("(") != 0)
     {
         cerr << "Syntax Error: missing '(' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -607,8 +661,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+    head_tree->Leaf.push_back(tree);
 
     // ')'
     current_token = lexer.get_current(); // RULE 3
@@ -617,7 +672,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
     if (current_token_string.compare(")") != 0)
     {
         cerr << "Syntax Error: missing ')' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Block>
@@ -626,15 +681,17 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
 
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 {
     // For_Statement ::= 'for' '(' [ <VariableDecl> ] ';' <Expr> ';' [ <Assignment> ] ')' <Block>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(FOR_STATEMENT);
 
     // 'for'
     auto current_token = lexer.get_current(); // RULE 3
@@ -643,7 +700,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
     if (current_token_string.compare("for") != 0)
     {
         cerr << "Syntax Error: missing 'for' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // '('
@@ -653,7 +710,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
     if (next_token_string.compare("(") != 0)
     {
         cerr << "Syntax Error: missing '(' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // [ <VariableDecl> ]
@@ -668,8 +725,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+        head_tree->Leaf.push_back(tree);
 
         current_token = lexer.get_current(); // RULE 3
         current_token_string = get<string>(current_token);
@@ -677,7 +735,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
         if (current_token_string.compare(";") != 0)
         {
             cerr << "Syntax Error: missing ';' " << endl;
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
     }
 
@@ -687,8 +745,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+    head_tree->Leaf.push_back(tree);
 
     // ';'
     current_token = lexer.get_current(); // RULE 3
@@ -697,7 +756,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
     if (current_token_string.compare(";") != 0)
     {
         cerr << "Syntax Error: missing ';' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Identifier>
@@ -712,6 +771,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
         if (result == SUCCESS)
         {
+            head_tree->Leaf.push_back(tree);
         }
     }
 
@@ -722,7 +782,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
     if (current_token_string.compare(")") != 0)
     {
         cerr << "Syntax Error: missing ')' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Block>
@@ -731,14 +791,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 {
     // If_Statement ::= 'if' '(' <Expr> ')' <Block> [ 'else' <Block> ]
+    shared_ptr<ASTree> head_tree = ASTree_node_create(IF_STATEMENT);
 
     // 'if'
     auto current_token = lexer.get_current(); // RULE 3
@@ -747,7 +809,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
     if (current_token_string.compare("if") != 0)
     {
         cerr << "Syntax Error: missing 'if' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // '('
@@ -757,7 +819,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
     if (next_token_string.compare("(") != 0)
     {
         cerr << "Syntax Error: missing '(' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -768,8 +830,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+    head_tree->Leaf.push_back(tree);
 
     // ')'
     current_token = lexer.get_current(); // RULE 3
@@ -778,7 +841,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
     if (current_token_string.compare(")") != 0)
     {
         cerr << "Syntax Error: missing ')' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     //<Block>
@@ -787,8 +850,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+    head_tree->Leaf.push_back(tree);
 
     // [ 'else' <Block> ]
     next_token = lexer.get_current(); // RULE 3
@@ -796,7 +860,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (next_token_string.compare("else") != 0)
     {
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
     }
 
     lexer.get_next();
@@ -804,14 +868,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::RTRN_Statement()
 {
     // RTRN_Statement ::= 'return' <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(RTRN_STATEMENT);
 
     // 'return'
     auto current_token = lexer.get_current(); // RULE 3
@@ -820,7 +886,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::RTRN_Statement()
     if (current_token_string.compare("return") != 0)
     {
         cerr << "Syntax Error: missing 'return' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -831,9 +897,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::RTRN_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
@@ -841,11 +908,14 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
     /* Pixel_Statement ::= '__pixelr' <Expr>','<Expr>','<Expr>','<Expr>','<Expr>
      *                   | '__pixel'  <Expr>','<Expr>','<Expr>
      */
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PIXEL_STATEMENT);
 
     // '__pixelr' | '__pixel'
     auto current_token = lexer.get_current(); // RULE 3
     auto current_token_string = get<string>(current_token);
     int count = 0; // amount of looping
+
+    head_tree->text = current_token_string;
 
     if (current_token_string.compare("__pixel") == 0)
     {
@@ -858,7 +928,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
     else
     {
         cerr << "Syntax Error: missing '__pixel' or '__pixelr' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     AST_token result;
@@ -873,8 +943,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+        head_tree->Leaf.push_back(tree);
 
         // ','
         auto next_token = lexer.get_current(); // RULE 3
@@ -883,7 +954,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
         if (next_token_string.compare(",") != 0)
         {
             cerr << "Syntax Error: missing ',' " << endl;
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
     }
 
@@ -893,14 +964,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Print_Statement()
 {
     // Print_Statement ::= '__print' <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PRINT_STATEMENT);
 
     // '__print'
     auto current_token = lexer.get_current(); // RULE 3
@@ -909,7 +982,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Print_Statement()
     if (current_token_string.compare("__print") != 0)
     {
         cerr << "Syntax Error: missing '__print' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -920,14 +993,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Print_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Delay_Statement()
 {
     // Delay_Statement ::= '__delay' <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(DELAY_STATEMENT);
 
     // '__delay'
     auto current_token = lexer.get_current(); // RULE 3
@@ -936,7 +1011,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Delay_Statement()
     if (current_token_string.compare("__delay") != 0)
     {
         cerr << "Syntax Error: missing '__delay' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -947,14 +1022,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Delay_Statement()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 {
     // Variable_Decl ::= 'let' <Identifier> ':' <Type> '=' <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(VARIABLE_DECL);
 
     // 'let'
     auto current_token = lexer.get_current(); // RULE 3
@@ -963,38 +1040,48 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
     if (current_token_type != Declarator)
     {
         cerr << "Syntax Error: missing 'let' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Identifier>
     auto next_token = lexer.get_next();
     auto next_token_type = get<token_type>(next_token);
+    auto next_token_string = get<string>(next_token);
 
     if (next_token_type != Identifier)
     {
         cerr << "Syntax Error: missing identifier " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    auto Identifier_node = ASTree_node_create(IDENTIFIER);
+    Identifier_node->text = next_token_string;
+    head_tree->Leaf.push_back(Identifier_node);
 
     // ':'
     next_token = lexer.get_next();
-    auto next_token_string = get<string>(next_token);
+    next_token_string = get<string>(next_token);
 
     if (next_token_string.compare(":") != 0)
     {
         cerr << "Syntax Error: missing ':' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Type>
     next_token = lexer.get_next();
     next_token_type = get<token_type>(next_token);
+    next_token_string = get<string>(next_token);
 
     if (next_token_type != Type)
     {
         cerr << "Syntax Error: missing Type " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    auto Type_node = ASTree_node_create(TYPE);
+    Type_node->text = next_token_string;
+    head_tree->Leaf.push_back(Type_node);
 
     // '='
     next_token = lexer.get_next();
@@ -1003,7 +1090,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
     if (next_token_string.compare("=") != 0)
     {
         cerr << "Syntax Error: missing '=' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -1014,19 +1101,27 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL};
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree};
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
-tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment(tuple<std::string, token_type> token)
+tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment(tuple<std::string, token_type> previous_token)
 {
     // Assigment ::= <Identifier> '=' <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(ASSIGNMENT);
 
     //<Identifier>
     /*  <Identifier> was here but it was removed since we already checked for it
      *  in function Satment(). (some changes where done in For_Statment() since it used <Assigment> as well)
      */
+
+    auto previous_token_string = get<string>(previous_token);
+    auto identifier_node = ASTree_node_create(IDENTIFIER);
+    identifier_node->text = previous_token_string;
+
+    head_tree->Leaf.push_back(identifier_node);
 
     // '='
     auto next_token = lexer.get_current();
@@ -1035,7 +1130,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment(tuple<std::string, token_
     if (next_token_string.compare("=") != 0)
     {
         cerr << "Syntax Error: missing '=' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -1046,14 +1141,18 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment(tuple<std::string, token_
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL}; // RULE 1
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree}; // RULE 1
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Expr()
 {
     // Expr ::= <SimpleExpr> { <RelationalOp> <SimpleExpr> }
+    shared_ptr<ASTree> head_tree = ASTree_node_create(EXPR);
+    auto next_node = head_tree;
+    int i = 0;
 
     // <SimpleExpr>
     AST_token result;
@@ -1062,8 +1161,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Expr()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->Leaf.push_back(tree);
 
     // { <RelationalOp> <SimpleExpr> }
     while (true)
@@ -1071,11 +1172,28 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Expr()
         // <RelationalOp>
         auto next_token = lexer.get_current(); // RULE 3
         auto next_token_type = get<token_type>(next_token);
+        auto next_token_string = get<string>(next_token);
 
         if (next_token_type != RelationalOp)
         {
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
         }
+
+        // empty the next_node
+        next_node->Leaf.pop_back();
+
+        // create MultiOp_node
+        auto RelatOp_node = ASTree_node_create(RELATIONALOP);
+        RelatOp_node->text = next_token_string;
+
+        // set RelatOp_node as next_node leaf
+        next_node->Leaf.push_back(RelatOp_node);
+
+        // next_node = RelatOp_node
+        next_node = next_node->Leaf.at(i);
+
+        // we set <Factor> as 1. Leaf to RelatOp_node
+        next_node->Leaf.push_back(tree);
 
         // <SimpleExpr>
         lexer.get_next(); // RULE 2
@@ -1083,16 +1201,21 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Expr()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+        next_node->Leaf.push_back(tree);
+        i = 1;
     }
     cerr << "CODE FAILED: at while(1){}" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
 {
     // Simple_Expr ::= <Term> { <AdditiveOp> <Term> }
+    shared_ptr<ASTree> head_tree = ASTree_node_create(SIMPLE_EXPR);
+    auto next_node = head_tree;
+    int i = 0;
 
     //<Term>
     AST_token result;
@@ -1101,8 +1224,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->Leaf.push_back(tree);
 
     // { <AdditiveOp> <Term> }
     while (true)
@@ -1110,11 +1235,28 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
         // <AdditiveOp>
         auto next_token = lexer.get_current(); // RULE 3
         auto next_token_type = get<token_type>(next_token);
+        auto next_token_string = get<string>(next_token);
 
         if (next_token_type != AdditiveOp)
         {
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
         }
+
+        // empty the last node in next_node
+        next_node->Leaf.pop_back();
+
+        // create AdditOp_node
+        auto AdditOp_node = ASTree_node_create(ADDITIVEOP);
+        AdditOp_node->text = next_token_string;
+
+        // set AdditOp_node as next_node leaf
+        next_node->Leaf.push_back(AdditOp_node);
+
+        // next_node = AdditOp_node
+        next_node = next_node->Leaf.at(i);
+
+        // we set <Factor> as 1. Leaf to AdditOp_node
+        next_node->Leaf.push_back(tree);
 
         // <Term>
         lexer.get_next(); // RULE 2
@@ -1122,16 +1264,21 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+        next_node->Leaf.push_back(tree);
+        i = 1;
     }
     cerr << "CODE FAILED: at while(1){}" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
 {
     // Term ::= <Factor> { <MultiplicativeOp> <Factor> }
+    shared_ptr<ASTree> head_tree = ASTree_node_create(TERM);
+    auto next_node = head_tree;
+    int i = 0;
 
     // <Factor>
     AST_token result;
@@ -1140,8 +1287,11 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    // ste head_tree leaf as <Factor>
+    head_tree->Leaf.push_back(tree);
 
     // { <MultiplicativeOp> <Factor> }
     while (true)
@@ -1149,11 +1299,28 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
         // <MultiplicativeOp>
         auto next_token = lexer.get_current(); // RULE 3
         auto next_token_type = get<token_type>(next_token);
+        auto next_token_string = get<string>(next_token);
 
         if (next_token_type != MultiplicativeOp)
         {
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
         }
+
+        // empty the next_node
+        next_node->Leaf.pop_back();
+
+        // create MultiOp_node
+        auto MultiOp_node = ASTree_node_create(MULTIPLICATIVEOP);
+        MultiOp_node->text = next_token_string;
+
+        // set MulitOp_node as next_node leaf
+        next_node->Leaf.push_back(MultiOp_node);
+
+        // next_node = MulitOp_node
+        next_node = next_node->Leaf.at(i);
+
+        // we set <Factor> as 1. Leaf to MultiOp_node
+        next_node->Leaf.push_back(tree);
 
         // <Factor>
         lexer.get_next(); // RULE 2
@@ -1161,11 +1328,15 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+
+        // set next <Factor> as 2. leaf
+        next_node->Leaf.push_back(tree);
+        i = 1;
     }
     cerr << "CODE FAILED: at while(1){}" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
@@ -1174,13 +1345,14 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
      * <SubExpr> | <Unary> | <PadRandI> | <PadWidth> | <PadHeight> |
      * <PadRead>
      */
+    shared_ptr<ASTree> head_tree = ASTree_node_create(FACTOR);
 
     auto current_token = lexer.get_current(); // RULE 3
     auto current_token_type = get<token_type>(current_token);
     auto current_token_string = get<string>(current_token);
 
     tuple<std::string, token_type> next_token;
-    string next_token_string;
+    string next_token_string = current_token_string;
 
     AST_token result;
     shared_ptr<ASTree> tree;
@@ -1193,7 +1365,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL};
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree};
         }
         break;
 
@@ -1205,7 +1378,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL}; // RULE 3
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree}; // RULE 3
             }
         }
         else if (current_token_string.compare("__width") == 0) // <PadWidth>
@@ -1214,7 +1388,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL}; // RULE 3
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree}; // RULE 3
             }
         }
         else if (current_token_string.compare("__read") == 0) // <PadRead>
@@ -1223,7 +1398,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL}; // RULE 3
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree}; // RULE 3
             }
         }
         else if (current_token_string.compare("__randi") == 0) // <PadRandI>
@@ -1232,7 +1408,8 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL}; // RULE 3
+                head_tree->Leaf.push_back(tree);
+                return {SUCCESS, head_tree}; // RULE 3
             }
         }
         break;
@@ -1247,11 +1424,19 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
             if (result == FAIL)
             {
-                return {FAIL, NULL};
+                return {FAIL, head_tree};
             }
+
+            head_tree->Leaf.push_back(tree);
+        }
+        else
+        {
+            auto Identifier_Node = ASTree_node_create(IDENTIFIER);
+            Identifier_Node->text = next_token_string;
+            head_tree->Leaf.push_back(Identifier_Node);
         }
 
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
         break;
 
     default: // finally check for <Literal>
@@ -1265,7 +1450,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
             if (result == SUCCESS)
             {
-                return {SUCCESS, NULL};
+                return {SUCCESS, head_tree};
             }
             break;
         }
@@ -1273,40 +1458,54 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
         tie(result, tree) = Literal();
 
         if (result == SUCCESS)
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
 
         break;
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Literal()
 {
     // Litreal ::= <BooleanLiteral> | <IntegerLiteral> | <FloatLiteral> | <ColourLiteral> | <PadWidth> | <PadHeight> | <PadRead>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(LITERAL);
 
     auto current_token = lexer.get_current(); // RULE 3
+    auto current_token_string = get<string>(current_token);
     auto current_token_type = get<token_type>(current_token);
 
     switch (current_token_type)
     {
-    case BooleanLiteral:  // <BooleanLiteral>
+    case BooleanLiteral: // <BooleanLiteral>
+        head_tree->Leaf.push_back(ASTree_node_create(BOOL_LITERAL));
+        head_tree->Leaf.at(0)->text = current_token_string;
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
         break;
 
-    case IntegerLiteral:  // <IntegerLiteral>
+    case IntegerLiteral: // <IntegerLiteral>
+        head_tree->Leaf.push_back(ASTree_node_create(INTEGER_LITERAL));
+        head_tree->Leaf.at(0)->text = current_token_string;
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
         break;
 
-    case FloatLiteral:    // <FloatLiteral>
+    case FloatLiteral: // <FloatLiteral>
+        head_tree->Leaf.push_back(ASTree_node_create(FLOAT_LITERAL));
+        head_tree->Leaf.at(0)->text = current_token_string;
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
         break;
 
-    case ColourLiteral:   // <ColourLiteral>
+    case ColourLiteral: // <ColourLiteral>
+        head_tree->Leaf.push_back(ASTree_node_create(COLOUR_LITERAL));
+        head_tree->Leaf.at(0)->text = current_token_string;
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
         break;
 
     case PadOp: // <PadWidth> | <PadHeight> | <PadRead>
@@ -1317,35 +1516,45 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Literal()
 
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL}; // RULE 3
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree}; // RULE 3
         }
 
         tie(result, tree) = Pad_Width();
 
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL}; // RULE 3
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree}; // RULE 3
         }
 
         tie(result, tree) = Pad_Read();
 
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL}; // RULE 3
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree}; // RULE 3
         }
         break;
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Call(tuple<string, token_type> previous_token)
 {
     // Function_call ::= <Identifier> '(' [ <ActualParams> ] ')'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(FUNCTION_CALL);
 
     // <Identifier>
     /*  <Identifier> was here but it was removed since we already checked for it
      *  in function Factor().
      */
+
+    auto previous_token_string = get<string>(previous_token);
+    auto identifier_node = ASTree_node_create(IDENTIFIER);
+    identifier_node->text = previous_token_string;
+
+    head_tree->Leaf.push_back(identifier_node);
 
     // '('
     auto current_token = lexer.get_current();
@@ -1354,7 +1563,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Call(tuple<string, token_t
     if (current_token_string.compare("(") != 0)
     {
         cerr << "Syntax Error: missing '(' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // [ <ActualParams> ] | ')'
@@ -1363,15 +1572,18 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Call(tuple<string, token_t
     auto next_token = lexer.get_next();
     auto next_token_string = get<string>(next_token);
 
-    if (next_token_string.compare(")") != 0)
+    if (next_token_string.compare(")") != 0) // ')'
     {
+        // <ActualParams>
         lexer.get_next(); // RULE 2
         tie(result, tree) = Actual_Params();
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+
+        head_tree->Leaf.push_back(tree);
 
         // ')'
         current_token = lexer.get_current(); // RULE 3
@@ -1380,17 +1592,18 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Call(tuple<string, token_t
         if (current_token_string.compare(")") != 0)
         {
             cerr << "Syntax Error: missing ')' " << endl;
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
     }
 
     lexer.get_next();
-    return {SUCCESS, NULL};
+    return {SUCCESS, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
 {
     // Sub_expr ::= '(' <Expr> ')'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(SUB_EXPR);
 
     // '('
     auto current_token = lexer.get_current(); // RULE 3
@@ -1399,7 +1612,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
     if (current_token_string.compare("(") != 0)
     {
         cerr << "Syntax Error: missing '(' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -1410,8 +1623,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->Leaf.push_back(tree);
 
     // ')'
     current_token = lexer.get_current(); // RULE 3
@@ -1420,22 +1635,27 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
     if (current_token_string.compare(")") == 0)
     {
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
     }
     cerr << "Syntax Error: missing ')' " << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
+
+    // possible code parsing reduction by removing <SUB_EXPR> and just returning <EXPR>
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Unary()
 {
-    // Unary ::= ( '-' | 'not' | '!' ) <Expr>
+    // Unary ::= ( '-' | '+' | 'not' | '!' ) <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(UNARY);
 
-    // '-' | 'not' | '!'
+    // '-' | '+' | 'not' | '!'
     auto current_token = lexer.get_current(); // RULE 3
     auto current_token_string = get<string>(current_token);
 
-    if (get<token_type>(current_token) == UnaryOp)
+    if (get<token_type>(current_token) == UnaryOp) // 'not' | '!'
     {
+        head_tree->text = current_token_string;
+
         // <Expr>
         AST_token result;
         shared_ptr<ASTree> tree;
@@ -1445,11 +1665,14 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Unary()
         // test result
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL}; // RULE 1
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree}; // RULE 1
         }
     }
-    else if (current_token_string.compare("-") == 0)
+    else if (current_token_string.compare("-") == 0) // '-'
     {
+        head_tree->text = current_token_string;
+
         // <Expr>
         AST_token result;
         shared_ptr<ASTree> tree;
@@ -1459,10 +1682,11 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Unary()
         // test result
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL}; // RULE 1
+            head_tree->Leaf.push_back(tree);
+            return {SUCCESS, head_tree}; // RULE 1
         }
     }
-    else if (current_token_string.compare("+") == 0)
+    else if (current_token_string.compare("+") == 0) // '+'
     {
         // <Expr>
         AST_token result;
@@ -1473,16 +1697,18 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Unary()
         // test result
         if (result == SUCCESS)
         {
-            return {SUCCESS, NULL}; // RULE 1
+            return {SUCCESS, tree}; // RULE 1
+            // this returns the tree since; '+' <Expr> ::= <Expr>
         }
     }
     cerr << "Syntax Error: Something is missing" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_RandI()
 {
     // Pad_randI :: = '__randi'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PAD_RANDI);
 
     // '__randi'
     auto current_token = lexer.get_current(); // RULE 3
@@ -1491,8 +1717,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_RandI()
     if (current_token_string.compare("__randi") != 0)
     {
         cerr << "Syntax Error: missing '__randi' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->text = current_token_string;
 
     //<Expr>
     AST_token result;
@@ -1502,14 +1730,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_RandI()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL}; // RULE 1
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree}; // RULE 1
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
 {
     // Pad_read :: = '__read' <Expr> ',' <Expr>
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PAD_READ);
 
     // '__read'
     auto current_token = lexer.get_current(); // RULE 3
@@ -1518,8 +1748,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
     if (current_token_string.compare("__read") != 0)
     {
         cerr << "Syntax Error: missing '__read' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->text = current_token_string;
 
     // <Expr>
     AST_token result;
@@ -1529,8 +1761,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->Leaf.push_back(tree);
 
     // ','
     auto next_token = lexer.get_current(); // RULE 3
@@ -1539,7 +1773,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
     if (next_token_string.compare(",") != 0)
     {
         cerr << "Syntax Error: missing ',' " << endl;
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
 
     // <Expr>
@@ -1548,14 +1782,16 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
 
     if (result == SUCCESS)
     {
-        return {SUCCESS, NULL}; // RULE 1
+        head_tree->Leaf.push_back(tree);
+        return {SUCCESS, head_tree}; // RULE 1
     }
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Actual_Params()
 {
     // Actual_params ::= <Expr> { ',' <Expr> }
+    shared_ptr<ASTree> head_tree = ASTree_node_create(ACTUAL_PARAMS);
 
     // <Expr>
     AST_token result;
@@ -1564,8 +1800,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Actual_Params()
 
     if (result == FAIL)
     {
-        return {FAIL, NULL};
+        return {FAIL, head_tree};
     }
+
+    head_tree->Leaf.push_back(tree);
 
     // { ',' <Expr> }
     while (true)
@@ -1576,7 +1814,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Actual_Params()
 
         if (next_token_string.compare(",") != 0)
         {
-            return {SUCCESS, NULL};
+            return {SUCCESS, head_tree};
         }
 
         // <Expr>
@@ -1585,16 +1823,19 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Actual_Params()
 
         if (result == FAIL)
         {
-            return {FAIL, NULL};
+            return {FAIL, head_tree};
         }
+
+        head_tree->Leaf.push_back(tree);
     }
     cerr << "CODE FAILED: while(1){}" << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Width()
 {
     // Pad_width ::= '__width'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PAD_WIDTH);
 
     // '__width'
     auto current_token = lexer.get_current(); // RULE 3
@@ -1602,16 +1843,19 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Width()
 
     if (current_token_string.compare("__width") == 0)
     {
+        head_tree->text = current_token_string;
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
     }
     cerr << "Syntax Error: missing '__width' " << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Height()
 {
     // Pad_height ::= '__height'
+    shared_ptr<ASTree> head_tree = ASTree_node_create(PAD_HEIGHT);
 
     // ‘__height’
     auto current_token = lexer.get_current(); // RULE 3
@@ -1619,11 +1863,13 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Height()
 
     if (current_token_string.compare("__height") == 0)
     {
+        head_tree->text = current_token_string;
+
         lexer.get_next(); // RULE 1
-        return {SUCCESS, NULL};
+        return {SUCCESS, head_tree};
     }
     cerr << "Syntax Error: missing '__height' " << endl;
-    return {FAIL, NULL};
+    return {FAIL, head_tree};
 }
 
 #endif // __PARSER_H__
