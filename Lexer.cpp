@@ -240,11 +240,11 @@ tuple<string, token_type> Lexer::get_next_token(ifstream &file)
                 if (c == '>')
                 {
                     temp.push_back(file.get());
-                    return {temp, AdditiveOp};
+                    return {temp, ExceptionCharacter};
                 }
                 else
                 {
-                    return {temp, ExceptionCharacter};
+                    return {temp, AdditiveOp};
                 }
             }
             return {temp, Identifier};

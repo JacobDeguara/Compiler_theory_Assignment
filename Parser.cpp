@@ -33,16 +33,16 @@ private:
     tuple<AST_token, shared_ptr<ASTree>> If_Statement();
     // RTRN_Statement ::=  'return' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> RTRN_Statement();
-    // Pixel_Statement ::= '__pixelr' <Expr>','<Expr>','<Expr>','<Expr>','<Expr>| '__pixel' <Expr>','<Expr>','<Expr>
+    // Pixel_Statement ::= '__pixelr' <Expr> ',' <Expr> ',' <Expr> ',' <Expr> ',' <Expr> | '__pixel' <Expr> ',' <Expr> ',' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Pixel_Statement();
-    // Print_Statement ::= '__print' <Expr
+    // Print_Statement ::= '__print' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Print_Statement();
     // Delay_Statement ::= '__delay' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Delay_Statement();
     // Variable_Decl ::= 'let' <Identifier> ':' <Type> '=' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Variable_Decl();
     // Assigment ::= <Identifier> '=' <Expr>
-    tuple<AST_token, shared_ptr<ASTree>> Assigment();
+    tuple<AST_token, shared_ptr<ASTree>> Assigment(tuple<std::string, token_type> token);
     // Expr ::= <SimpleExpr> { <RelationalOp> <SimpleExpr> }
     tuple<AST_token, shared_ptr<ASTree>> Expr();
     // Simple_Expr ::= <Term> { <AdditiveOp> <Term> }
@@ -57,7 +57,7 @@ private:
     tuple<AST_token, shared_ptr<ASTree>> Function_Call(tuple<string, token_type> previous_token);
     // Sub_Expr ::= '(' <Expr> ')'
     tuple<AST_token, shared_ptr<ASTree>> Sub_Expr();
-    // Unary ::= ( '-' | 'not' | '!' ) <Expr>
+    // Unary ::= ( '-' | '+' | 'not' | '!' ) <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Unary();
     // Pad_RandI :: = '__randi' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Pad_RandI();
@@ -142,7 +142,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Program()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Program() , working:Statment()" << endl;
             return {FAIL, NULL};
         }
 
@@ -185,11 +184,13 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
         }
 
+        cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+        return {FAIL, NULL};
         break;
     case Identifier: // <Assignment> ';'
 
         lexer.get_next();
-        tie(result, tree) = Assigment();
+        tie(result, tree) = Assigment(current_token);
 
         if (result == FAIL)
         {
@@ -205,6 +206,9 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             lexer.get_next();
             return {SUCCESS, NULL};
         }
+
+        cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+        return {FAIL, NULL};
         break;
     case SpecialStatementsOp: // <PrintStatement> ';'| <DelayStatement> ';' | <PixelStatement> ';'
 
@@ -227,6 +231,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
                 }
                 break;
             }
+            else
+            {
+                return {FAIL, NULL};
+            }
         }
         else if (current_token_string.compare("__delay") == 0) // <DelayStatement> ';'
         {
@@ -244,6 +252,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
                     return {SUCCESS, NULL};
                 }
                 break;
+            }
+            else
+            {
+                return {FAIL, NULL};
             }
         }
         else // <PixelStatement> ';'
@@ -263,7 +275,14 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
                 }
                 break;
             }
+            else
+            {
+                return {FAIL, NULL};
+            }
         }
+
+        cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+        return {FAIL, NULL};
         break;
     case StatementOp: // <IfStatement> | <ForStatement> | <WhileStatement> | <RtrnStatement> ';'
 
@@ -312,6 +331,11 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
                     lexer.get_next();
                     return {SUCCESS, NULL};
                 }
+                else
+                {
+                    cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                    return {FAIL, NULL};
+                }
                 break;
             }
         }
@@ -335,7 +359,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
     default:
         break;
     }
-    cerr << "FAILED: func:Statement() , working:switch(current_token)" << endl;
     return {FAIL, NULL};
 }
 
@@ -349,7 +372,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Block()
 
     if (current_token_string.compare("{") != 0)
     {
-        cerr << "FAILED: func:Block() , working:(string == '{')" << endl;
+        cerr << "Syntax Error: missing '{' " << endl;
         return {FAIL, NULL};
     }
 
@@ -382,7 +405,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Block()
         lexer.get_next();
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Block() , working:(string == '}')" << endl;
+    cerr << "Syntax Error: missing '}'" << endl;
     return {FAIL, NULL};
 }
 
@@ -396,7 +419,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 
     if (current_token_type != Func)
     {
-        cerr << "FAILED: func:Function_Decl() , working:(token == Func)" << endl;
+        cerr << "FAILED CODE: Function_Decl() at if(current_token_type != Func)" << endl;
         return {FAIL, NULL};
     }
 
@@ -406,7 +429,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 
     if (next_token_type != Identifier)
     {
-        cerr << "FAILED: func:Function_Decl() , working:(token == Identifier)" << endl;
+        cerr << "Syntax Error: missing Identifier" << endl;
         return {FAIL, NULL};
     }
 
@@ -416,28 +439,35 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 
     if (next_token_string.compare("(") != 0)
     {
-        cerr << "FAILED: func:Function_Decl() , working:(string == '(')" << endl;
+        cerr << "Syntax Error: missing '(' " << endl;
         return {FAIL, NULL};
     }
 
-    // [ <FormalParams> ]
+    // [ <FormalParams> ] | ')'
     AST_token result;
     shared_ptr<ASTree> tree;
-    lexer.get_next(); // RULE 2
-    tie(result, tree) = Formal_Params();
+    next_token = lexer.get_next();
+    next_token_string = get<string>(next_token);
 
-    if (result == SUCCESS)
+    if (next_token_string.compare(")") != 0)
     {
-    }
+        tie(result, tree) = Formal_Params();
 
-    // ')'
-    current_token = lexer.get_current();
-    auto current_token_string = get<string>(current_token);
+        if (result == FAIL)
+        {
+            cerr << "Possible? Syntax Error: missing ')' " << endl;
+            return {FAIL, NULL};
+        }
 
-    if (current_token_string.compare(")") != 0)
-    {
-        cerr << "FAILED: func:Function_Decl() , working:(string == ')')" << endl;
-        return {FAIL, NULL};
+        // ')'
+        current_token = lexer.get_current();
+        auto current_token_string = get<string>(current_token);
+
+        if (current_token_string.compare(")") != 0)
+        {
+            cerr << "Syntax Error: missing ')' " << endl;
+            return {FAIL, NULL};
+        }
     }
 
     // '->'
@@ -446,7 +476,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 
     if (next_token_string.compare("->") != 0)
     {
-        cerr << "FAILED: func:Function_Decl() , working:(string == '->')" << endl;
+        cerr << "Syntax Error: missing '->' " << endl;
         return {FAIL, NULL};
     }
 
@@ -456,7 +486,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
 
     if (next_token_type != Type)
     {
-        cerr << "FAILED: func:Function_Decl() , working:(token == Type)" << endl;
+        cerr << "Syntax Error: missing type declaration " << endl;
         return {FAIL, NULL};
     }
 
@@ -468,7 +498,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Decl()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Function_Decl() , working:Block()" << endl;
     return {FAIL, NULL};
 }
 
@@ -483,7 +512,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Params()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Formal_Params() , working:Formal_Parameter()" << endl;
         return {FAIL, NULL};
     }
 
@@ -505,11 +533,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Params()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Formal_Params() , working:Formal_Parameter() 2" << endl;
             return {FAIL, NULL};
         }
     }
-    cerr << "FAILED: func:Formal_Params() , working: while(1){}" << endl;
+    cerr << "CODE FAILED: failed while(1){}" << endl;
     return {FAIL, NULL};
 }
 
@@ -523,7 +550,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Parameter()
 
     if (current_token_type != Identifier)
     {
-        cerr << "FAILED: func:Formal_Parameter() , working:(token == Identifier)" << endl;
+        cerr << "Syntax Error: missing identifier" << endl;
         return {FAIL, NULL};
     }
 
@@ -533,7 +560,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Parameter()
 
     if (next_token_string.compare(":") != 0)
     {
-        cerr << "FAILED: func:Formal_Parameter() , working:(string == ':')" << endl;
+        cerr << "Syntax Error: missing ':' " << endl;
         return {FAIL, NULL};
     }
 
@@ -546,7 +573,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Parameter()
         lexer.get_next(); // RULE 1
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Formal_Parameter() , working:token == Type" << endl;
     return {FAIL, NULL};
 }
 
@@ -560,7 +586,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (current_token_string.compare("while") != 0)
     {
-        cerr << "FAILED: func:While_Statement() , working:(string == 'while')" << endl;
         return {FAIL, NULL};
     }
 
@@ -570,7 +595,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (next_token_string.compare("(") != 0)
     {
-        cerr << "FAILED: func:While_Statement() , working:(string == '(')" << endl;
+        cerr << "Syntax Error: missing '(' " << endl;
         return {FAIL, NULL};
     }
 
@@ -582,7 +607,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:While_Statement() , working:Expr()" << endl;
         return {FAIL, NULL};
     }
 
@@ -592,7 +616,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
 
     if (current_token_string.compare(")") != 0)
     {
-        cerr << "FAILED: func:While_Statement() , working:(string == ')')" << endl;
+        cerr << "Syntax Error: missing ')' " << endl;
         return {FAIL, NULL};
     }
 
@@ -604,7 +628,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::While_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:While_Statement() , working:Block()" << endl;
+
     return {FAIL, NULL};
 }
 
@@ -618,7 +642,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
     if (current_token_string.compare("for") != 0)
     {
-        cerr << "FAILED: func:For_Statement() , working:(string == 'for')" << endl;
+        cerr << "Syntax Error: missing 'for' " << endl;
         return {FAIL, NULL};
     }
 
@@ -628,37 +652,41 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
     if (next_token_string.compare("(") != 0)
     {
-        cerr << "FAILED: func:For_Statement() , working:(string == '(')" << endl;
+        cerr << "Syntax Error: missing '(' " << endl;
         return {FAIL, NULL};
     }
 
     // [ <VariableDecl> ]
     AST_token result;
     shared_ptr<ASTree> tree;
-    lexer.get_next(); // RULE 2
-    tie(result, tree) = Variable_Decl();
+    next_token = lexer.get_next();
+    next_token_string = get<string>(next_token);
 
-    if (result == SUCCESS)
+    if (next_token_string.compare(";") != 0)
     {
-    }
+        tie(result, tree) = Variable_Decl();
 
-    // ';'
-    current_token = lexer.get_current(); // RULE 3
-    current_token_string = get<string>(current_token);
+        if (result == FAIL)
+        {
+            return {FAIL, NULL};
+        }
 
-    if (current_token_string.compare(";") != 0)
-    {
-        cerr << "FAILED: func:For_Statement() , working:(string == ':')" << endl;
-        return {FAIL, NULL};
+        current_token = lexer.get_current(); // RULE 3
+        current_token_string = get<string>(current_token);
+
+        if (current_token_string.compare(";") != 0)
+        {
+            cerr << "Syntax Error: missing ';' " << endl;
+            return {FAIL, NULL};
+        }
     }
 
     // <Expr>
     lexer.get_next(); // RULE 2
-    tie(result, tree) = Variable_Decl();
+    tie(result, tree) = Expr();
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:For_Statement() , working:Variabe_Decl()" << endl;
         return {FAIL, NULL};
     }
 
@@ -668,7 +696,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
     if (current_token_string.compare(";") != 0)
     {
-        cerr << "FAILED: func:For_Statement() , working:(string == ';')" << endl;
+        cerr << "Syntax Error: missing ';' " << endl;
         return {FAIL, NULL};
     }
 
@@ -680,7 +708,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
     {
         // [ <Assignment> ]
         lexer.get_next(); // RULE 2
-        tie(result, tree) = Assigment();
+        tie(result, tree) = Assigment(current_token);
 
         if (result == SUCCESS)
         {
@@ -693,7 +721,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
 
     if (current_token_string.compare(")") != 0)
     {
-        cerr << "FAILED: func:For_Statement() , working:(string == ')')" << endl;
+        cerr << "Syntax Error: missing ')' " << endl;
         return {FAIL, NULL};
     }
 
@@ -705,7 +733,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::For_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:For_Statement() , working:Block()" << endl;
     return {FAIL, NULL};
 }
 
@@ -719,7 +746,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (current_token_string.compare("if") != 0)
     {
-        cerr << "FAILED: func:If_Statement() , working:(string == 'if')" << endl;
+        cerr << "Syntax Error: missing 'if' " << endl;
         return {FAIL, NULL};
     }
 
@@ -729,7 +756,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (next_token_string.compare("(") != 0)
     {
-        cerr << "FAILED: func:If_Statement() , working:(string == '(')" << endl;
+        cerr << "Syntax Error: missing '(' " << endl;
         return {FAIL, NULL};
     }
 
@@ -741,7 +768,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:If_Statement() , working:Expr()" << endl;
         return {FAIL, NULL};
     }
 
@@ -751,7 +777,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (current_token_string.compare(")") != 0)
     {
-        cerr << "FAILED: func:If_Statement() , working:(string == ')')" << endl;
+        cerr << "Syntax Error: missing ')' " << endl;
         return {FAIL, NULL};
     }
 
@@ -761,7 +787,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:If_Statement() , working:Block()" << endl;
         return {FAIL, NULL};
     }
 
@@ -781,7 +806,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::If_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:If_Statement() , working:Block()" << endl;
     return {FAIL, NULL};
 }
 
@@ -795,7 +819,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::RTRN_Statement()
 
     if (current_token_string.compare("return") != 0)
     {
-        cerr << "FAILED: func:RTRN_Statement() , working:(string == 'return')" << endl;
+        cerr << "Syntax Error: missing 'return' " << endl;
         return {FAIL, NULL};
     }
 
@@ -809,7 +833,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::RTRN_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:RTRN_Statement() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -834,7 +857,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
     }
     else
     {
-        cerr << "FAILED: func:Pixel_Statement() , working:(string == '__pixel' | '__pixelr')" << endl;
+        cerr << "Syntax Error: missing '__pixel' or '__pixelr' " << endl;
         return {FAIL, NULL};
     }
 
@@ -850,7 +873,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Pixel_Statement() , working:Expr()" << endl;
             return {FAIL, NULL};
         }
 
@@ -860,7 +882,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
 
         if (next_token_string.compare(",") != 0)
         {
-            cerr << "FAILED: func:Pixel_Statement() , working:(string == ',')" << endl;
+            cerr << "Syntax Error: missing ',' " << endl;
             return {FAIL, NULL};
         }
     }
@@ -873,7 +895,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Pixel_Statement() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -887,7 +908,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Print_Statement()
 
     if (current_token_string.compare("__print") != 0)
     {
-        cerr << "FAILED: func:Print_Statement() , working:(string == '__print')" << endl;
+        cerr << "Syntax Error: missing '__print' " << endl;
         return {FAIL, NULL};
     }
 
@@ -901,7 +922,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Print_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Print_Statement() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -915,7 +935,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Delay_Statement()
 
     if (current_token_string.compare("__delay") != 0)
     {
-        cerr << "FAILED: func:Delay_Statement() , working:(string == '__delay')" << endl;
+        cerr << "Syntax Error: missing '__delay' " << endl;
         return {FAIL, NULL};
     }
 
@@ -929,7 +949,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Delay_Statement()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Delay_Statement() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -943,7 +962,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 
     if (current_token_type != Declarator)
     {
-        cerr << "FAILED: func:Variable_Decl() , working:(token == Declarator)" << endl;
+        cerr << "Syntax Error: missing 'let' " << endl;
         return {FAIL, NULL};
     }
 
@@ -953,7 +972,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 
     if (next_token_type != Identifier)
     {
-        cerr << "FAILED: func:Variable_Decl() , working:(token == Identifier)" << endl;
+        cerr << "Syntax Error: missing identifier " << endl;
         return {FAIL, NULL};
     }
 
@@ -963,7 +982,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 
     if (next_token_string.compare(":") != 0)
     {
-        cerr << "FAILED: func:Variable_Decl() , working:(string == ':')" << endl;
+        cerr << "Syntax Error: missing ':' " << endl;
         return {FAIL, NULL};
     }
 
@@ -973,7 +992,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 
     if (next_token_type != Type)
     {
-        cerr << "FAILED: func:Variable_Decl() , working:(token == Type)" << endl;
+        cerr << "Syntax Error: missing Type " << endl;
         return {FAIL, NULL};
     }
 
@@ -983,7 +1002,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
 
     if (next_token_string.compare("=") != 0)
     {
-        cerr << "FAILED: func:Variable_Decl() , working:(string == '=')" << endl;
+        cerr << "Syntax Error: missing '=' " << endl;
         return {FAIL, NULL};
     }
 
@@ -997,11 +1016,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Variable_Decl()
     {
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Variable_Decl() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
-tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment()
+tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment(tuple<std::string, token_type> token)
 {
     // Assigment ::= <Identifier> '=' <Expr>
 
@@ -1016,7 +1034,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment()
 
     if (next_token_string.compare("=") != 0)
     {
-        cerr << "FAILED: func:Assigment() , working:(string == '=')" << endl;
+        cerr << "Syntax Error: missing '=' " << endl;
         return {FAIL, NULL};
     }
 
@@ -1030,7 +1048,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Assigment()
     {
         return {SUCCESS, NULL}; // RULE 1
     }
-    cerr << "FAILED: func:Assigment() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -1045,7 +1062,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Expr()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Expr() , working:Simple_Expr()" << endl;
         return {FAIL, NULL};
     }
 
@@ -1067,11 +1083,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Expr()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Expr() , working:Simple_Expr() 2" << endl;
             return {FAIL, NULL};
         }
     }
-    cerr << "FAILED: func:Expr() , working:while(1){}" << endl;
+    cerr << "CODE FAILED: at while(1){}" << endl;
     return {FAIL, NULL};
 }
 
@@ -1086,7 +1101,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Simple_Expr() , working:Term()" << endl;
         return {FAIL, NULL};
     }
 
@@ -1108,11 +1122,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Simple_Expr()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Simple_Expr() , working:Term() 2" << endl;
             return {FAIL, NULL};
         }
     }
-    cerr << "FAILED: func:Simple_Expr() , working:while(1){}" << endl;
+    cerr << "CODE FAILED: at while(1){}" << endl;
     return {FAIL, NULL};
 }
 
@@ -1127,7 +1140,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Term() , working:Factor()" << endl;
         return {FAIL, NULL};
     }
 
@@ -1149,11 +1161,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Term()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Term() , working:Factor() 2" << endl;
             return {FAIL, NULL};
         }
     }
-    cerr << "FAILED: func:Term() , working:while(1){}" << endl;
+    cerr << "CODE FAILED: at while(1){}" << endl;
     return {FAIL, NULL};
 }
 
@@ -1176,16 +1187,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
     switch (current_token_type)
     {
-    case ExceptionCharacter: // <SubExpr> ('(')
-        tie(result, tree) = Sub_Expr();
-
-        if (result == SUCCESS)
-        {
-            return {SUCCESS, NULL};
-        }
-        break;
-
-    case AdditiveOp: // <Unary> ('-')
+    case AdditiveOp: // ('-' | '+')
     case UnaryOp:    // <Unary>
         tie(result, tree) = Unary();
 
@@ -1253,6 +1255,21 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
         break;
 
     default: // finally check for <Literal>
+
+        current_token = lexer.get_current();
+        current_token_string = get<string>(current_token);
+
+        if (current_token_string.compare("(") == 0)
+        {
+            tie(result, tree) = Sub_Expr();
+
+            if (result == SUCCESS)
+            {
+                return {SUCCESS, NULL};
+            }
+            break;
+        }
+
         tie(result, tree) = Literal();
 
         if (result == SUCCESS)
@@ -1260,7 +1277,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
 
         break;
     }
-    cerr << "FAILED: func:Factor() , working:switch(token)" << endl;
     return {FAIL, NULL};
 }
 
@@ -1319,7 +1335,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Literal()
         }
         break;
     }
-    cerr << "FAILED: func:Literal() , working:switch(token)" << endl;
     return {FAIL, NULL};
 }
 
@@ -1338,28 +1353,35 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Function_Call(tuple<string, token_t
 
     if (current_token_string.compare("(") != 0)
     {
-        cerr << "FAILED: func:Function_Call() , working:(string == '(')" << endl;
+        cerr << "Syntax Error: missing '(' " << endl;
         return {FAIL, NULL};
     }
 
-    // [ <ActualParams> ]
+    // [ <ActualParams> ] | ')'
     AST_token result;
     shared_ptr<ASTree> tree;
-    lexer.get_next(); // RULE 2
-    tie(result, tree) = Actual_Params();
+    auto next_token = lexer.get_next();
+    auto next_token_string = get<string>(next_token);
 
-    if (result == SUCCESS)
+    if (next_token_string.compare(")") != 0)
     {
-    }
+        lexer.get_next(); // RULE 2
+        tie(result, tree) = Actual_Params();
 
-    // ')'
-    current_token = lexer.get_current(); // RULE 3
-    current_token_string = get<string>(current_token);
+        if (result == FAIL)
+        {
+            return {FAIL, NULL};
+        }
 
-    if (current_token_string.compare(")") != 0)
-    {
-        cerr << "FAILED: func:Function_Call() , working:(string == ')')" << endl;
-        return {FAIL, NULL};
+        // ')'
+        current_token = lexer.get_current(); // RULE 3
+        current_token_string = get<string>(current_token);
+
+        if (current_token_string.compare(")") != 0)
+        {
+            cerr << "Syntax Error: missing ')' " << endl;
+            return {FAIL, NULL};
+        }
     }
 
     lexer.get_next();
@@ -1376,7 +1398,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
 
     if (current_token_string.compare("(") != 0)
     {
-        cerr << "FAILED: func:Sub_Expr() , working:(string == '(')" << endl;
+        cerr << "Syntax Error: missing '(' " << endl;
         return {FAIL, NULL};
     }
 
@@ -1388,7 +1410,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Sub_Expr() , working:Expr()" << endl;
         return {FAIL, NULL};
     }
 
@@ -1401,7 +1422,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
         lexer.get_next(); // RULE 1
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Sub_Expr() , working:(string == ')')" << endl;
+    cerr << "Syntax Error: missing ')' " << endl;
     return {FAIL, NULL};
 }
 
@@ -1441,7 +1462,21 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Unary()
             return {SUCCESS, NULL}; // RULE 1
         }
     }
-    cerr << "FAILED: func:Unary() , working:(idk)" << endl;
+    else if (current_token_string.compare("+") == 0)
+    {
+        // <Expr>
+        AST_token result;
+        shared_ptr<ASTree> tree;
+        lexer.get_next(); // RULE 2
+        tie(result, tree) = Expr();
+
+        // test result
+        if (result == SUCCESS)
+        {
+            return {SUCCESS, NULL}; // RULE 1
+        }
+    }
+    cerr << "Syntax Error: Something is missing" << endl;
     return {FAIL, NULL};
 }
 
@@ -1455,7 +1490,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_RandI()
 
     if (current_token_string.compare("__randi") != 0)
     {
-        cerr << "FAILED: func:Pad_RandI() , working:(string == '__randi')" << endl;
+        cerr << "Syntax Error: missing '__randi' " << endl;
         return {FAIL, NULL};
     }
 
@@ -1469,7 +1504,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_RandI()
     {
         return {SUCCESS, NULL}; // RULE 1
     }
-    cerr << "FAILED: func:Pad_RandI() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -1483,7 +1517,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
 
     if (current_token_string.compare("__read") != 0)
     {
-        cerr << "FAILED: func:Pad_Read() , working:(string == '__read')" << endl;
+        cerr << "Syntax Error: missing '__read' " << endl;
         return {FAIL, NULL};
     }
 
@@ -1495,7 +1529,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Pad_Read() , working:Expr()" << endl;
         return {FAIL, NULL};
     }
 
@@ -1505,7 +1538,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
 
     if (next_token_string.compare(",") != 0)
     {
-        cerr << "FAILED: func:Pad_Read() , working:(string == ',')" << endl;
+        cerr << "Syntax Error: missing ',' " << endl;
         return {FAIL, NULL};
     }
 
@@ -1517,7 +1550,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Read()
     {
         return {SUCCESS, NULL}; // RULE 1
     }
-    cerr << "FAILED: func:Pad_Read() , working:Expr()" << endl;
     return {FAIL, NULL};
 }
 
@@ -1532,7 +1564,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Actual_Params()
 
     if (result == FAIL)
     {
-        cerr << "FAILED: func:Actual_Params() , working:(string == '__read')" << endl;
         return {FAIL, NULL};
     }
 
@@ -1554,11 +1585,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Actual_Params()
 
         if (result == FAIL)
         {
-            cerr << "FAILED: func:Actual_Params() , working:Expr() #loop" << endl;
             return {FAIL, NULL};
         }
     }
-    cerr << "FAILED: func:Actual_Params() , working:while(1){}" << endl;
+    cerr << "CODE FAILED: while(1){}" << endl;
     return {FAIL, NULL};
 }
 
@@ -1575,7 +1605,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Width()
         lexer.get_next(); // RULE 1
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Pad_Width() , working:(string == '__width')" << endl;
+    cerr << "Syntax Error: missing '__width' " << endl;
     return {FAIL, NULL};
 }
 
@@ -1592,7 +1622,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pad_Height()
         lexer.get_next(); // RULE 1
         return {SUCCESS, NULL};
     }
-    cerr << "FAILED: func:Pad_Height() , working:(string == '__height')" << endl;
+    cerr << "Syntax Error: missing '__height' " << endl;
     return {FAIL, NULL};
 }
 
