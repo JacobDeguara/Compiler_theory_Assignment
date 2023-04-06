@@ -2,7 +2,6 @@ unit_tests
 unit_tests
 comp
 Calculator
-Calculator.cpp
-Lexer.h
+Calculator.cppW
 test
 main.cpp
