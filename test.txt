@@ -1,12 +1,32 @@
-//〈FunctionDecl〉
+fun MoreThan50 ( x : int ) -> bool {
+    let x : int = 23 ;  // re-declaration in same scope !ERROR!
 
-fun XGreaterThenY (x: int,y:int) -> int {
-    if(x > canYouPutMulitpleThingsHere){
-        return x;
-    }else {
-        return y;
+    if ( x <= y) {
+        return false ;
     }
-    return somethingelse;
+    return true ;
 }
 
-//〈Block〉
+let x : int  = 45 ;
+
+while ( x < 50) {
+    __print MoreThan50 ( x );  // this prints 'false' 6 times since bool operator is <
+    x = x + 1 ;
+}
+
+let x : int  = 45 ;  // re-declaration in same scope !ERROR!
+while (MoreThan50 ( x )) {
+    __print MoreThan50 ( x ); 
+    x = x + 1 ;
+}
+
+let w: int  = __width ;
+let h : int  = __height ;
+
+for ( let u : int  = 0 ; u<w; u = u+1)
+{
+    for ( let v : int  = 0 ; v<h ; v = v+1)
+    {
+        __pixelr u , v ,1 ,1 ,#00ff00 ;
+    }
+}

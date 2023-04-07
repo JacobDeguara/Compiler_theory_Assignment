@@ -42,6 +42,7 @@ enum state
     IdentifierState, // IdentifierState ; -> <digit> | <letter> | '_' -> IdentifierState
     DefaultState,    // anything that isnt what we stated -> DefaultState
 };
+
 // [ ] ::= do once or none / { } ::= do many times or none / '%s' speacific string
 enum AST_token
 {
