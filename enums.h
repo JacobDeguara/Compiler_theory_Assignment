@@ -58,9 +58,10 @@ enum AST_token
     WHILE_STATEMENT,  // ::= 'while' '(' <Expr> ')' <Block>
     FOR_STATEMENT,    // ::= 'for' '(' [ <VariableDecl> ] ';' <Expr> ';' [ <Assignment> ] ')' <Block>
     IF_STATEMENT,     // ::= 'if' '(' <Expr> ')' <Block> [ 'else' <Block> ]
-    RTRN_STATEMENT,   // ::=  'return' <Expr>
-    PIXEL_STATEMENT,  // ::= '__pixelr' <Expr>','<Expr>','<Expr>','<Expr>','<Expr>| '__pixel' <Expr>','<Expr>','<Expr>
-    PRINT_STATEMENT,  // ::= '__print' <Expr
+    RTRN_STATEMENT,   // ::= 'return' <Expr>
+    PIXEL_STATEMENT,  // ::= '__pixel' <Expr>','<Expr>','<Expr>
+    PIXELR_STATEMENT, // ::= '__pixelr' <Expr>','<Expr>','<Expr>','<Expr>','<Expr>
+    PRINT_STATEMENT,  // ::= '__print' <Expr>
     DELAY_STATEMENT,  // ::= '__delay' <Expr>
     VARIABLE_DECL,    // ::= 'let' <Identifier> ':' <Type> '=' <Expr>
     ASSIGNMENT,       // ::= <Identifier> '=' <Expr>
@@ -83,8 +84,8 @@ enum AST_token
     FLOAT_LITERAL,    // ::= <FloatLiteral(token_type)>
     COLOUR_LITERAL,   // ::= <ColourLiteral(token_type)>
     RELATIONALOP,     // ::= '<' | '>' | '==' | '!=' | '<=' | '>='
-    ADDITIVEOP,       // ::= '*' | '/' | 'and'
-    MULTIPLICATIVEOP, // ::= '+' | '-' | 'or'
+    ADDITIVEOP,       // ::= '+' | '-' | 'or'
+    MULTIPLICATIVEOP, // ::= '*' | '/' | 'and'
     TYPE,             // ::= 'float' | 'int' | 'bool' | 'colour'
 };
 

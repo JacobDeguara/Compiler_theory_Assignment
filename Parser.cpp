@@ -821,6 +821,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Pixel_Statement()
     }
     else if (current_token_string.compare("__pixelr") == 0)
     {
+        head_tree = ASTree_node_create(PIXELR_STATEMENT);
         count = 4;
     }
     else
@@ -1523,7 +1524,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Sub_Expr()
     if (current_token_string.compare(")") == 0)
     {
         lexer.get_next(); // RULE 1
-        return {SUCCESS, head_tree};
+        return {SUCCESS, tree->Leaf.at(0)};
     }
     cerr << "Syntax Error: missing ')' " << endl;
     return {FAIL, tree};

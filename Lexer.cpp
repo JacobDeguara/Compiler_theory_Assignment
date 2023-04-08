@@ -159,7 +159,7 @@ tuple<string, token_type> Lexer::get_next_token(ifstream &file)
                 }
                 else
                 {
-                    return {temp, ExceptionCharacter};
+                    return {temp, MultiplicativeOp};
                 }
             }
             return {temp, Identifier};

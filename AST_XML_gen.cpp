@@ -65,6 +65,9 @@ string AST_XML_gen::get_type_to_string(AST_token token)
     case PIXEL_STATEMENT:
         return "Pixel Statement";
         break;
+    case PIXELR_STATEMENT:
+        return "Pixelr Statement";
+        break;
     case PRINT_STATEMENT:
         return "Print Statment";
         break;
@@ -176,6 +179,7 @@ void AST_XML_gen::print_XML(int height, shared_ptr<ASTree> root, bool hide)
     case FLOAT_LITERAL:
         cout << "<" << get_type_to_string(token) << ">" << root->text;
         break;
+    case UNARY:
     case TYPE:
     case RELATIONALOP:
     case MULTIPLICATIVEOP:
