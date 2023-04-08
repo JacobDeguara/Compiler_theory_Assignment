@@ -12,8 +12,52 @@ void For_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declare
 void If_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
 
 // Type checking with comparision
-void Return_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-void Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
+AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (return_node->token != RTRN_STATEMENT)
+    {
+        cerr << "RETURN not of type RETURN" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return Type_checking(return_node->Leaf.at(0), variables_declared_list);
+}
+parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (variable_decl_node->token != VARIABLE_DECL)
+    {
+        cerr << "VARIABLE_DECL not of type VARIABLE_DECL" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto id = variable_decl_node->Leaf.at(0)->text;
+    auto type = type_converter(variable_decl_node->Leaf.at(1)->text);
+    auto Expr = Type_checking(variable_decl_node->Leaf.at(2), variables_declared_list);
+
+    // check if variable exits before hand
+    int i;
+    bool exists_flag;
+    tie(i, exists_flag) = if_exists_variable(id, variables_declared_list);
+
+    if (exists_flag == true)
+    {
+        cerr << "Variable " << id << " has already be initilized" << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    // check if expr is of correct type
+    if (type != Expr)
+    {
+        cerr << "Variable " << id << " must be of type " << variable_decl_node->Leaf.at(1)->text << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    // create new parameter and return it
+    return create_parameter_struct(id, type);
+}
+
 void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list)
 {
     // sanity check

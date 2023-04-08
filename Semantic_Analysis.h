@@ -82,8 +82,8 @@ void For_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declare
 void If_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
 
 // Type checking with comparision
-void Return_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-void Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
+AST_token Return_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
 void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list);
 void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list);
 void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declared_list);
@@ -144,4 +144,24 @@ tuple<bool, int> if_exists_variable(string id, vector<parameter> variables_decla
     return {false, -1};
 }
 
+AST_token type_converter(string type)
+{
+    if (type.compare("int") == 0)
+    {
+        return INTEGER_LITERAL;
+    }
+    else if (type.compare("float") == 0)
+    {
+        return FLOAT_LITERAL;
+    }
+    else if (type.compare("colour") == 0)
+    {
+        return COLOUR_LITERAL;
+    }
+    else if (type.compare("bool") == 0)
+    {
+        return BOOL_LITERAL;
+    }
+    return FAIL;
+}
 #endif // __SEMANTIC_ANALYSIS_H__
