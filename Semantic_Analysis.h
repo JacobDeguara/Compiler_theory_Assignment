@@ -73,16 +73,24 @@ struct function_set
 vector<function_set> FUNCTION_DECLIRATION;
 vector<parameter> Variable_Decliration;
 
+void Program_Analysis(shared_ptr<ASTree> program);
+void Block_Analysis_Start(shared_ptr<ASTree> block_node);
+
 // Function declirations
-void Function_Decliration_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+void Function_Decliration_Analysis(shared_ptr<ASTree> func);
+void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type);
+void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type);
+void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type);
+void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type);
 
 // functions with block
-void While_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-void For_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-void If_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list);
+void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list);
+void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list);
+void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list);
 
 // Type checking with comparision
-AST_token Return_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list);
 parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
 void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list);
 void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list);
@@ -136,7 +144,8 @@ tuple<bool, int> if_exists_variable(string id, vector<parameter> variables_decla
     int i;
     for (i = 0; i < variables_declared_list.size(); i++)
     {
-        if (variables_declared_list.at(i).identity.compare(id) == 0)
+        auto param_identity = variables_declared_list.at(i).identity;
+        if (param_identity.compare(id) == 0)
         {
             return {true, i};
         }

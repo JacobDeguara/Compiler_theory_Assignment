@@ -50,7 +50,7 @@ enum AST_token
     SUCCESS,          // Regular expression suceeded
     FAIL,             // An error was found in the process
     PROGRAM,          // ::= { <Statement> }
-    STATEMENT,        // ::= <VariableDecl> ';' | <Assignment> ';' | <PrintStatement> ';'| <DelayStatement> ';' | <PixelStatement> ';' | <IfStatement> | <ForStatement> | <WhileStatement> | <RtrnStatement> ';' | <FunctionDecl> | <Block>
+    STATEMENT,        // ::= <VariableDecl> ';' | <Assignment> ';' | <PrintStatement> ';'| <DelayStatement> ';' | <PixelStatement> ';' | <IfStatement> | <ForStatement> | <WhileStatement> | <RtrnStatement> ';' | <Block>
     BLOCK,            // ::= '{' { <Statement> } '}'
     FUNCTION_DECL,    // ::= 'fun' <Identifier> '(' [ <FormalParams> ] ')' '->' <Type><Block>
     FORMAL_PARAMS,    // ::= <FormalParam> { ',' <FormalParam> }

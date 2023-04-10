@@ -3,13 +3,442 @@
 
 #include "Semantic_Analysis.h"
 
-// Function declirations
-void Function_Decliration_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+// Program
+void Program_Analysis(shared_ptr<ASTree> program)
+{
+    // sanity check
+    if (program->token != PROGRAM)
+    {
+        cerr << "PROGRAM not of type PROGRAM" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    Block_Analysis_Start(program);
+}
+
+void Block_Analysis_Start(shared_ptr<ASTree> block_node)
+{
+    vector<parameter> variables_declared_list;
+    auto block_items = block_node->Leaf;
+    shared_ptr<ASTree> item;
+
+    for (size_t i = 0; i < block_items.size(); i++)
+    {
+        auto item = block_items.at(i);
+        parameter new_variable;
+
+        switch (item->token)
+        {
+        case FUNCTION_DECL:
+            Function_Decliration_Analysis(item);
+            break;
+        case VARIABLE_DECL:
+            new_variable = Variable_decl_Analysis(item, variables_declared_list);
+            variables_declared_list.push_back(new_variable);
+            break;
+        case ASSIGNMENT:
+            Assignment_Analysis(item, variables_declared_list);
+            break;
+        case DELAY_STATEMENT:
+            Delay_Analysis(item, variables_declared_list);
+            break;
+        case PRINT_STATEMENT:
+            Print_Analysis(item, variables_declared_list);
+            break;
+        case PIXEL_STATEMENT:
+            Pixel_Analysis(item, variables_declared_list);
+            break;
+        case PIXELR_STATEMENT:
+            Pixelr_Analysis(item, variables_declared_list);
+            break;
+        case WHILE_STATEMENT:
+            While_Analysis(item, variables_declared_list);
+            break;
+        case IF_STATEMENT:
+            If_Analysis(item, variables_declared_list);
+            break;
+        case FOR_STATEMENT:
+            For_Analysis(item, variables_declared_list);
+            break;
+        default:
+            cerr << item->token << " token cant be used in main" << endl;
+            exit(EXIT_SUCCESS);
+            break;
+        }
+    }
+}
 
 // functions with block
-void While_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-void For_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-void If_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (while_node->token != WHILE_STATEMENT)
+    {
+        cerr << "WHILE_STATEMENT not of type WHILE_STATEMENT" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto Expr = Type_checking(while_node->Leaf.at(0), variables_declared_list);
+
+    if (Expr != BOOL_LITERAL)
+    {
+        cerr << "For function must have bool expression" << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    Block_Analysis(while_node->Leaf.at(1), variables_declared_list);
+}
+
+void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (for_node->token != FOR_STATEMENT)
+    {
+        cerr << "FOR_STATEMENT not of type FOR_STATEMENT" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto scoped_var_list = variables_declared_list;
+    auto for_items = for_node->Leaf;
+
+    for (size_t i = 0; i < for_items.size(); i++)
+    {
+        auto item = for_items.at(i);
+        parameter variable_new;
+        AST_token expr;
+        switch (item->token)
+        {
+        case VARIABLE_DECL:
+            variable_new = Variable_decl_Analysis(item, scoped_var_list);
+            scoped_var_list.push_back(variable_new);
+            break;
+        case EXPR:
+            expr = Type_checking(item, scoped_var_list);
+            if (expr != BOOL_LITERAL)
+            {
+                cerr << "For function must have bool expression" << endl;
+                exit(EXIT_SUCCESS);
+            }
+            break;
+        case ASSIGNMENT:
+            Assignment_Analysis(item, scoped_var_list);
+            break;
+        case BLOCK:
+            Block_Analysis(item, scoped_var_list);
+            break;
+        default:
+            cerr << item->token << " token cant be used in main" << endl;
+            exit(EXIT_SUCCESS);
+            break;
+        }
+    }
+}
+
+void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (if_node->token != IF_STATEMENT)
+    {
+        cerr << "IF_STATEMENT not of type IF_STATEMENT" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto Expr = Type_checking(if_node->Leaf.at(0), variables_declared_list);
+
+    if (Expr != BOOL_LITERAL)
+    {
+        cerr << "if expression must be boolean type by using comparison operators or bool type" << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    Block_Analysis(if_node->Leaf.at(1), variables_declared_list);
+
+    if (if_node->Leaf.size() >= 2)
+    { // if its an if -> else if_statment => the if_node.size() == 3
+        Block_Analysis(if_node->Leaf.at(2), variables_declared_list);
+    }
+}
+
+void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (block_node->token != BLOCK)
+    {
+        cerr << "BLOCK not of type BLOCK" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto block_items = block_node->Leaf;
+    shared_ptr<ASTree> item;
+
+    for (size_t i = 0; i < block_items.size(); i++)
+    {
+        auto item = block_items.at(i);
+        parameter new_variable;
+
+        switch (item->token)
+        {
+        case VARIABLE_DECL:
+            new_variable = Variable_decl_Analysis(item, variables_declared_list);
+            variables_declared_list.push_back(new_variable);
+            break;
+        case ASSIGNMENT:
+            Assignment_Analysis(item, variables_declared_list);
+            break;
+        case DELAY_STATEMENT:
+            Delay_Analysis(item, variables_declared_list);
+            break;
+        case PRINT_STATEMENT:
+            Print_Analysis(item, variables_declared_list);
+            break;
+        case PIXEL_STATEMENT:
+            Pixel_Analysis(item, variables_declared_list);
+            break;
+        case PIXELR_STATEMENT:
+            Pixelr_Analysis(item, variables_declared_list);
+            break;
+        case WHILE_STATEMENT:
+            While_Analysis(item, variables_declared_list);
+            break;
+        case IF_STATEMENT:
+            If_Analysis(item, variables_declared_list);
+            break;
+        case FOR_STATEMENT:
+            For_Analysis(item, variables_declared_list);
+            break;
+        default:
+            cerr << item->token << " token cant be used in main" << endl;
+            exit(EXIT_SUCCESS);
+            break;
+        }
+    }
+}
+
+// Function declirations
+void Function_Decliration_Analysis(shared_ptr<ASTree> func)
+{
+    // sanity check
+    if (func->token != FUNCTION_DECL)
+    {
+        cerr << "RETURN not of type RETURN" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto function_decl_list = func->Leaf;
+
+    vector<parameter> variable_list;
+    string id;
+    AST_token type;
+    function_set func_item;
+
+    for (size_t i = 0; i < function_decl_list.size(); i++)
+    {
+        auto item = function_decl_list.at(i);
+        string id_param;
+        string type_param;
+
+        switch (item->token)
+        {
+        case IDENTIFIER:
+            // check if function exists already
+            if (get<bool>(if_exists_function_call(id)))
+            {
+                cerr << "A function with " << id << " name has been declared twice" << endl;
+                exit(EXIT_SUCCESS);
+            }
+            // set id as id of function
+            id = item->text;
+            break;
+        case FORMAL_PARAMS:
+
+            // loop through each parameter
+            for (size_t j = 0; j < item->Leaf.size(); j++)
+            {
+                id_param = item->Leaf.at(j)->Leaf.at(0)->text;
+                type_param = item->Leaf.at(j)->Leaf.at(1)->text;
+
+                // check if parameter exists already
+                if (get<bool>(if_exists_variable(id_param, variable_list)))
+                {
+                    cerr << "Variable " << id_param << " is written twice in function " << id << endl;
+                    exit(EXIT_SUCCESS);
+                }
+
+                // add variable to list
+                variable_list.push_back(create_parameter_struct(id_param, type_converter(type_param)));
+            }
+
+            break;
+        case TYPE:
+            type = type_converter(item->text);
+            break;
+        case BLOCK:
+            func_item = create_function_set_struct(id, type);
+            func_item.parameters = variable_list; // this is a copy so 'func_item.parameters' is not the same memory as 'variable_list'
+            // since block is always at the end of the Leaf, type and variable list will have something.
+            Block_Analysis_Func(item, variable_list, type);
+            break;
+        }
+    }
+
+    FUNCTION_DECLIRATION.push_back(func_item);
+}
+
+void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type)
+{
+    // sanity check
+    if (block_node->token != BLOCK)
+    {
+        cerr << "BLOCK not of type BLOCK" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto block_items = block_node->Leaf;
+    shared_ptr<ASTree> item;
+
+    for (size_t i = 0; i < block_items.size(); i++)
+    {
+        item = block_items.at(i);
+        parameter new_variable;
+        AST_token retrun_analysis_type;
+
+        switch (item->token)
+        {
+        case VARIABLE_DECL:
+            new_variable = Variable_decl_Analysis(item, variables_declared_list);
+            variables_declared_list.push_back(new_variable);
+            break;
+        case ASSIGNMENT:
+            Assignment_Analysis(item, variables_declared_list);
+            break;
+        case DELAY_STATEMENT:
+            Delay_Analysis(item, variables_declared_list);
+            break;
+        case PRINT_STATEMENT:
+            Print_Analysis(item, variables_declared_list);
+            break;
+        case PIXEL_STATEMENT:
+            Pixel_Analysis(item, variables_declared_list);
+            break;
+        case PIXELR_STATEMENT:
+            Pixelr_Analysis(item, variables_declared_list);
+            break;
+        case RTRN_STATEMENT:
+            retrun_analysis_type = Return_Analysis(item, variables_declared_list);
+
+            if (retrun_analysis_type != return_type)
+            {
+                cerr << "return type must be of same type as function" << endl;
+                exit(EXIT_SUCCESS);
+            }
+
+            break;
+        case WHILE_STATEMENT:
+            While_Analysis_Func(item, variables_declared_list, return_type);
+            break;
+        case IF_STATEMENT:
+            If_Analysis_Func(item, variables_declared_list, return_type);
+            break;
+        case FOR_STATEMENT:
+            For_Analysis_Func(item, variables_declared_list, return_type);
+            break;
+        default:
+            cerr << item->token << " token cant be used in function decliaration" << endl;
+            exit(EXIT_SUCCESS);
+            break;
+        }
+    }
+}
+
+void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type)
+{
+    // sanity check
+    if (while_node->token != WHILE_STATEMENT)
+    {
+        cerr << "WHILE_STATEMENT not of type WHILE_STATEMENT" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto Expr = Type_checking(while_node->Leaf.at(0), variables_declared_list);
+
+    if (Expr != BOOL_LITERAL)
+    {
+        cerr << "For function must have bool expression" << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    Block_Analysis_Func(while_node->Leaf.at(1), variables_declared_list, return_type);
+}
+
+void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type)
+{
+    // sanity check
+    if (for_node->token != FOR_STATEMENT)
+    {
+        cerr << "FOR_STATEMENT not of type FOR_STATEMENT" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto scoped_var_list = variables_declared_list;
+    auto for_items = for_node->Leaf;
+
+    for (size_t i = 0; i < for_items.size(); i++)
+    {
+        auto item = for_items.at(i);
+        parameter variable_new;
+        AST_token expr;
+        switch (item->token)
+        {
+        case VARIABLE_DECL:
+            variable_new = Variable_decl_Analysis(item, scoped_var_list);
+            scoped_var_list.push_back(variable_new);
+            break;
+        case EXPR:
+            expr = Type_checking(item, scoped_var_list);
+            if (expr != BOOL_LITERAL)
+            {
+                cerr << "For function must have bool expression" << endl;
+                exit(EXIT_SUCCESS);
+            }
+            break;
+        case ASSIGNMENT:
+            Assignment_Analysis(item, scoped_var_list);
+            break;
+        case BLOCK:
+            Block_Analysis_Func(item, scoped_var_list, return_type);
+            break;
+        default:
+            cerr << item->token << " token cant be used in main" << endl;
+            exit(EXIT_SUCCESS);
+            break;
+        }
+    }
+}
+
+void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type)
+{
+    // sanity check
+    if (if_node->token != IF_STATEMENT)
+    {
+        cerr << "IF_STATEMENT not of type IF_STATEMENT" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto Expr = Type_checking(if_node->Leaf.at(0), variables_declared_list);
+
+    if (Expr != BOOL_LITERAL)
+    {
+        cerr << "if expression must be boolean type by using comparison operators or bool type" << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    Block_Analysis_Func(if_node->Leaf.at(1), variables_declared_list, return_type);
+
+    if (if_node->Leaf.size() > 2)
+    { // if its an if -> else if_statment => the if_node.size() == 3
+        Block_Analysis_Func(if_node->Leaf.at(2), variables_declared_list, return_type);
+    }
+}
 
 // Type checking with comparision
 AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list)
@@ -23,6 +452,7 @@ AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> vari
 
     return Type_checking(return_node->Leaf.at(0), variables_declared_list);
 }
+
 parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list)
 {
     // sanity check
@@ -36,12 +466,7 @@ parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<p
     auto type = type_converter(variable_decl_node->Leaf.at(1)->text);
     auto Expr = Type_checking(variable_decl_node->Leaf.at(2), variables_declared_list);
 
-    // check if variable exits before hand
-    int i;
-    bool exists_flag;
-    tie(i, exists_flag) = if_exists_variable(id, variables_declared_list);
-
-    if (exists_flag == true)
+    if (get<bool>(if_exists_variable(id, variables_declared_list)))
     {
         cerr << "Variable " << id << " has already be initilized" << endl;
         exit(EXIT_SUCCESS);
@@ -70,11 +495,7 @@ void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> v
     auto id = assignment_node->Leaf.at(0)->text;
     auto Expr = Type_checking(assignment_node->Leaf.at(1), variables_declared_list);
 
-    int position;
-    bool exists_flag = false;
-    tie(position, exists_flag) = if_exists_variable(id, variables_declared_list);
-
-    if (exists_flag == false)
+    if (get<bool>(if_exists_variable(id, variables_declared_list)) == false)
     {
         cerr << "Variable " << id << " hasnt been initilized yet" << endl;
         exit(EXIT_SUCCESS);
@@ -115,6 +536,7 @@ void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declar
     // as long as its a valid Expr it works
     return;
 }
+
 void Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declared_list)
 {
     // sanity check
@@ -392,13 +814,13 @@ AST_token Identifier_Analysis(shared_ptr<ASTree> identifier, vector<parameter> v
     int position;
     bool exists_flag;
 
-    tie(position, exists_flag) = if_exists_variable(id, variables_declared_list);
+    tie(exists_flag, position) = if_exists_variable(id, variables_declared_list);
 
     if (exists_flag)
     {
         return variables_declared_list.at(position).type;
     }
-    cerr << "Variable " << id << " hasnt been initilized yet" << endl;
+    cerr << "Variable " << id << " hasnt been initilized yet, therefor it cant be used in an expr" << endl;
     exit(EXIT_SUCCESS);
 }
 
@@ -468,7 +890,7 @@ AST_token Function_Call_Analysis(shared_ptr<ASTree> function_call, vector<parame
     {
         if (Type_checking(function_parameters_list.at(i), variables_declared_list) != parameters_list_types.at(i))
         {
-            cerr << "Function " << identifier << "() requires parameter " << i << " to be of correct typeing";
+            cerr << "Function " << identifier << "() requires parameter " << i << " to be of correct typeing" << endl;
             exit(EXIT_SUCCESS);
         }
     }

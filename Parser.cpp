@@ -28,6 +28,11 @@ bool Parser::Compile(bool echo, bool print_tree, bool show_hidden)
         xml.gen_XML(!show_hidden);
     }
 
+    if (result)
+    {
+        Program_Analysis(root);
+    }
+
     return result == SUCCESS;
 }
 
