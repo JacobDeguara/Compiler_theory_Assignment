@@ -3,8 +3,12 @@
 
 #include "Semantic_Analysis.h"
 
+Semantic_Analysis::Semantic_Analysis(/* args */)
+{
+}
+
 // Program
-void Program_Analysis(shared_ptr<ASTree> program)
+void Semantic_Analysis::Program_Analysis(shared_ptr<ASTree> program)
 {
     // sanity check
     if (program->token != PROGRAM)
@@ -16,7 +20,7 @@ void Program_Analysis(shared_ptr<ASTree> program)
     Block_Analysis_Start(program);
 }
 
-void Block_Analysis_Start(shared_ptr<ASTree> block_node)
+void Semantic_Analysis::Block_Analysis_Start(shared_ptr<ASTree> block_node)
 {
     vector<parameter> variables_declared_list;
     auto block_items = block_node->Leaf;
@@ -69,7 +73,7 @@ void Block_Analysis_Start(shared_ptr<ASTree> block_node)
 }
 
 // functions with block
-void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list)
+void Semantic_Analysis::While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (while_node->token != WHILE_STATEMENT)
@@ -89,7 +93,7 @@ void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_d
     Block_Analysis(while_node->Leaf.at(1), variables_declared_list);
 }
 
-void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list)
+void Semantic_Analysis::For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (for_node->token != FOR_STATEMENT)
@@ -134,7 +138,7 @@ void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_decla
     }
 }
 
-void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list)
+void Semantic_Analysis::If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (if_node->token != IF_STATEMENT)
@@ -153,13 +157,13 @@ void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declare
 
     Block_Analysis(if_node->Leaf.at(1), variables_declared_list);
 
-    if (if_node->Leaf.size() >= 2)
+    if (if_node->Leaf.size() > 2)
     { // if its an if -> else if_statment => the if_node.size() == 3
         Block_Analysis(if_node->Leaf.at(2), variables_declared_list);
     }
 }
 
-void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list)
+void Semantic_Analysis::Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (block_node->token != BLOCK)
@@ -215,7 +219,7 @@ void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_d
 }
 
 // Function declirations
-void Function_Decliration_Analysis(shared_ptr<ASTree> func)
+void Semantic_Analysis::Function_Decliration_Analysis(shared_ptr<ASTree> func)
 {
     // sanity check
     if (func->token != FUNCTION_DECL)
@@ -284,7 +288,7 @@ void Function_Decliration_Analysis(shared_ptr<ASTree> func)
     FUNCTION_DECLIRATION.push_back(func_item);
 }
 
-void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type)
+void Semantic_Analysis::Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type)
 {
     // sanity check
     if (block_node->token != BLOCK)
@@ -350,7 +354,7 @@ void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variab
     }
 }
 
-void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type)
+void Semantic_Analysis::While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type)
 {
     // sanity check
     if (while_node->token != WHILE_STATEMENT)
@@ -370,7 +374,7 @@ void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variab
     Block_Analysis_Func(while_node->Leaf.at(1), variables_declared_list, return_type);
 }
 
-void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type)
+void Semantic_Analysis::For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type)
 {
     // sanity check
     if (for_node->token != FOR_STATEMENT)
@@ -415,7 +419,7 @@ void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_
     }
 }
 
-void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type)
+void Semantic_Analysis::If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type)
 {
     // sanity check
     if (if_node->token != IF_STATEMENT)
@@ -441,7 +445,7 @@ void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_de
 }
 
 // Type checking with comparision
-AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (return_node->token != RTRN_STATEMENT)
@@ -453,7 +457,7 @@ AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> vari
     return Type_checking(return_node->Leaf.at(0), variables_declared_list);
 }
 
-parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list)
+parameter Semantic_Analysis::Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (variable_decl_node->token != VARIABLE_DECL)
@@ -483,7 +487,7 @@ parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<p
     return create_parameter_struct(id, type);
 }
 
-void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list)
+void Semantic_Analysis::Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (assignment_node->token != ASSIGNMENT)
@@ -502,7 +506,7 @@ void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> v
     }
 }
 
-void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list)
+void Semantic_Analysis::Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (delay->token != PRINT_STATEMENT)
@@ -522,7 +526,7 @@ void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declar
     exit(EXIT_SUCCESS);
 }
 
-void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declared_list)
+void Semantic_Analysis::Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (print->token != PRINT_STATEMENT)
@@ -537,7 +541,7 @@ void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declar
     return;
 }
 
-void Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declared_list)
+void Semantic_Analysis::Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (pixel->token != PIXEL_STATEMENT)
@@ -559,7 +563,7 @@ void Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declar
     exit(EXIT_SUCCESS);
 }
 
-void Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list)
+void Semantic_Analysis::Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (pixelr->token != PIXELR_STATEMENT)
@@ -584,7 +588,7 @@ void Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_decl
 }
 
 // Type checking to be used then Finding Expr;
-AST_token Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (Expr->token != EXPR)
@@ -595,7 +599,7 @@ AST_token Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_dec
     return Expr_analise(Expr->Leaf.at(0), variables_declared_list);
 }
 
-AST_token Expr_analise(shared_ptr<ASTree> tree_token, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Expr_analise(shared_ptr<ASTree> tree_token, vector<parameter> variables_declared_list)
 {
     auto token = tree_token->token;
 
@@ -636,7 +640,7 @@ AST_token Expr_analise(shared_ptr<ASTree> tree_token, vector<parameter> variable
     }
 }
 
-AST_token Read_Analysis(shared_ptr<ASTree> read_node, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Read_Analysis(shared_ptr<ASTree> read_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (read_node->token != PAD_READ)
@@ -657,7 +661,7 @@ AST_token Read_Analysis(shared_ptr<ASTree> read_node, vector<parameter> variable
     exit(EXIT_SUCCESS);
 }
 
-AST_token RandI_Analysis(shared_ptr<ASTree> randi_node, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::RandI_Analysis(shared_ptr<ASTree> randi_node, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (randi_node->token != PAD_RANDI)
@@ -677,7 +681,7 @@ AST_token RandI_Analysis(shared_ptr<ASTree> randi_node, vector<parameter> variab
     exit(EXIT_SUCCESS);
 }
 
-AST_token AdditiveOp_Analysis(shared_ptr<ASTree> additive_op, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::AdditiveOp_Analysis(shared_ptr<ASTree> additive_op, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (additive_op->token != ADDITIVEOP)
@@ -720,7 +724,7 @@ AST_token AdditiveOp_Analysis(shared_ptr<ASTree> additive_op, vector<parameter> 
     exit(EXIT_FAILURE);
 }
 
-AST_token MultiplicativeOp_Analysis(shared_ptr<ASTree> multi_op, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::MultiplicativeOp_Analysis(shared_ptr<ASTree> multi_op, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (multi_op->token != MULTIPLICATIVEOP)
@@ -763,7 +767,7 @@ AST_token MultiplicativeOp_Analysis(shared_ptr<ASTree> multi_op, vector<paramete
     exit(EXIT_FAILURE);
 }
 
-AST_token RelationalOp_Analysis(shared_ptr<ASTree> relation_op, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::RelationalOp_Analysis(shared_ptr<ASTree> relation_op, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (relation_op->token != RELATIONALOP)
@@ -801,7 +805,7 @@ AST_token RelationalOp_Analysis(shared_ptr<ASTree> relation_op, vector<parameter
     exit(EXIT_FAILURE);
 }
 
-AST_token Identifier_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Identifier_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (identifier->token != IDENTIFIER)
@@ -824,7 +828,7 @@ AST_token Identifier_Analysis(shared_ptr<ASTree> identifier, vector<parameter> v
     exit(EXIT_SUCCESS);
 }
 
-AST_token Unary_Analysis(shared_ptr<ASTree> unary, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Unary_Analysis(shared_ptr<ASTree> unary, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (unary->token != UNARY)
@@ -853,7 +857,7 @@ AST_token Unary_Analysis(shared_ptr<ASTree> unary, vector<parameter> variables_d
     return type;
 }
 
-AST_token Function_Call_Analysis(shared_ptr<ASTree> function_call, vector<parameter> variables_declared_list)
+AST_token Semantic_Analysis::Function_Call_Analysis(shared_ptr<ASTree> function_call, vector<parameter> variables_declared_list)
 {
     // sanity check
     if (function_call->token != FUNCTION_CALL)

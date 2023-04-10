@@ -30,7 +30,15 @@ bool Parser::Compile(bool echo, bool print_tree, bool show_hidden)
 
     if (result)
     {
-        Program_Analysis(root);
+        Semantic_Analysis SemAn = Semantic_Analysis();
+        try
+        {
+            SemAn.Program_Analysis(root);
+        }
+        catch (const std::exception &e)
+        {
+            result == FAIL;
+        }
     }
 
     return result == SUCCESS;

@@ -70,107 +70,115 @@ struct function_set
     }
 };
 
-vector<function_set> FUNCTION_DECLIRATION;
-vector<parameter> Variable_Decliration;
-
-void Program_Analysis(shared_ptr<ASTree> program);
-void Block_Analysis_Start(shared_ptr<ASTree> block_node);
-
-// Function declirations
-void Function_Decliration_Analysis(shared_ptr<ASTree> func);
-void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type);
-void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type);
-void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type);
-void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type);
-
-// functions with block
-void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list);
-void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list);
-void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list);
-void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list);
-
-// Type checking with comparision
-AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list);
-parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
-void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list);
-void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list);
-void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declared_list);
-void Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declared_list);
-void Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
-
-// Type checking to be used then Finding Expr;
-AST_token Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list);
-AST_token Expr_analise(shared_ptr<ASTree> tree_token, vector<parameter> variables_declared_list);
-AST_token Unary_Analysis(shared_ptr<ASTree> unary, vector<parameter> variables_declared_list);
-AST_token Function_Call_Analysis(shared_ptr<ASTree> function_call, vector<parameter> variables_declared_list);
-AST_token Identifier_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
-AST_token AdditiveOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
-AST_token MultiplicativeOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
-AST_token RelationalOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
-AST_token Read_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
-AST_token RandI_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
-
-parameter create_parameter_struct(string id, AST_token type)
+class Semantic_Analysis
 {
-    parameter temp;
-    temp.identity = id;
-    temp.type = type;
-    return temp;
-}
+private:
+    vector<function_set> FUNCTION_DECLIRATION;
 
-function_set create_function_set_struct(string id, AST_token return_type)
-{
-    function_set temp;
-    temp.identity = id;
-    temp.return_type = return_type;
-    return temp;
-}
+    void Block_Analysis_Start(shared_ptr<ASTree> block_node);
 
-tuple<bool, int> if_exists_function_call(string id)
-{
-    int i;
-    for (i = 0; i < FUNCTION_DECLIRATION.size(); i++)
+    // Function declirations
+    void Function_Decliration_Analysis(shared_ptr<ASTree> func);
+    void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type);
+    void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type);
+    void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type);
+    void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type);
+
+    // functions with block
+    void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list);
+    void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list);
+    void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list);
+    void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list);
+
+    // Type checking with comparision
+    AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list);
+    parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
+    void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list);
+    void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list);
+    void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declared_list);
+    void Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declared_list);
+    void Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+
+    // Type checking to be used then Finding Expr;
+    AST_token Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list);
+    AST_token Expr_analise(shared_ptr<ASTree> tree_token, vector<parameter> variables_declared_list);
+    AST_token Unary_Analysis(shared_ptr<ASTree> unary, vector<parameter> variables_declared_list);
+    AST_token Function_Call_Analysis(shared_ptr<ASTree> function_call, vector<parameter> variables_declared_list);
+    AST_token Identifier_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+    AST_token AdditiveOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+    AST_token MultiplicativeOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+    AST_token RelationalOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+    AST_token Read_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+    AST_token RandI_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+
+    parameter create_parameter_struct(string id, AST_token type)
     {
-        if (FUNCTION_DECLIRATION.at(i).identity.compare(id) == 0)
+        parameter temp;
+        temp.identity = id;
+        temp.type = type;
+        return temp;
+    }
+
+    function_set create_function_set_struct(string id, AST_token return_type)
+    {
+        function_set temp;
+        temp.identity = id;
+        temp.return_type = return_type;
+        return temp;
+    }
+
+    tuple<bool, int> if_exists_function_call(string id)
+    {
+        int i;
+        for (i = 0; i < FUNCTION_DECLIRATION.size(); i++)
         {
-            return {true, i};
+            if (FUNCTION_DECLIRATION.at(i).identity.compare(id) == 0)
+            {
+                return {true, i};
+            }
         }
+        return {false, -1};
     }
-    return {false, -1};
-}
 
-tuple<bool, int> if_exists_variable(string id, vector<parameter> variables_declared_list)
-{
-    int i;
-    for (i = 0; i < variables_declared_list.size(); i++)
+    tuple<bool, int> if_exists_variable(string id, vector<parameter> variables_declared_list)
     {
-        auto param_identity = variables_declared_list.at(i).identity;
-        if (param_identity.compare(id) == 0)
+        int i;
+        for (i = 0; i < variables_declared_list.size(); i++)
         {
-            return {true, i};
+            auto param_identity = variables_declared_list.at(i).identity;
+            if (param_identity.compare(id) == 0)
+            {
+                return {true, i};
+            }
         }
+        return {false, -1};
     }
-    return {false, -1};
-}
 
-AST_token type_converter(string type)
-{
-    if (type.compare("int") == 0)
+    AST_token type_converter(string type)
     {
-        return INTEGER_LITERAL;
+        if (type.compare("int") == 0)
+        {
+            return INTEGER_LITERAL;
+        }
+        else if (type.compare("float") == 0)
+        {
+            return FLOAT_LITERAL;
+        }
+        else if (type.compare("colour") == 0)
+        {
+            return COLOUR_LITERAL;
+        }
+        else if (type.compare("bool") == 0)
+        {
+            return BOOL_LITERAL;
+        }
+        return FAIL;
     }
-    else if (type.compare("float") == 0)
-    {
-        return FLOAT_LITERAL;
-    }
-    else if (type.compare("colour") == 0)
-    {
-        return COLOUR_LITERAL;
-    }
-    else if (type.compare("bool") == 0)
-    {
-        return BOOL_LITERAL;
-    }
-    return FAIL;
-}
+
+public:
+    Semantic_Analysis(/* args */);
+    ~Semantic_Analysis() = default;
+    void Program_Analysis(shared_ptr<ASTree> program);
+};
+
 #endif // __SEMANTIC_ANALYSIS_H__

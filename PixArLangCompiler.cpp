@@ -7,7 +7,7 @@
 int main()
 {
     Parser parser = Parser("test.txt");
-    auto result = parser.Compile(false, true, true);
+    auto result = parser.Compile(false, false, false);
 
     if (result)
     {
