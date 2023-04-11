@@ -27,20 +27,6 @@ bool Parser::Compile(bool echo, bool print_tree, bool show_hidden)
         AST_XML_gen xml = AST_XML_gen(root);
         xml.gen_XML(!show_hidden);
     }
-
-    if (result)
-    {
-        Semantic_Analysis SemAn = Semantic_Analysis();
-        try
-        {
-            SemAn.Program_Analysis(root);
-        }
-        catch (const std::exception &e)
-        {
-            result == FAIL;
-        }
-    }
-
     return result == SUCCESS;
 }
 

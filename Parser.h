@@ -7,7 +7,6 @@
 
 #include "Lexer.cpp"
 #include "AST_XML_gen.cpp"
-#include "Semantic_Analysis.cpp"
 #include "enums.h"
 
 class Parser
