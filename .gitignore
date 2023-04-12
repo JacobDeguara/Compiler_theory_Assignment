@@ -2,6 +2,6 @@ unit_tests
 unit_tests
 comp
 Calculator
-Calculator.cppW
+Calculator.cpp
 test
 main.cpp

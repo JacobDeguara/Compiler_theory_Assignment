@@ -48,11 +48,10 @@ int main()
     }
     */
 
-    //
     cmp.change_file("test.txt");
     cmp.set_return_file("result.txt");
     // cmp.enable_lexer_echo();
     cmp.enable_AST_XML_generator();
-    // cmp.show_hidden_XML_nodes();
+    cmp.show_hidden_XML_nodes();
     cmp.compile_file();
 }

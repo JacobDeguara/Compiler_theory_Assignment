@@ -1,8 +1,11 @@
 #ifndef __COMPILER_H__
 #define __COMPILER_H__
 
+#include <iostream>
+
 #include "Parser.cpp"
 #include "Semantic_Analysis.cpp"
+#include "PixLang_Converter.cpp"
 
 class Compiler
 {

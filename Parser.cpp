@@ -1352,8 +1352,10 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Factor()
         tie(result, tree) = Literal();
 
         if (result == SUCCESS)
+        {
+            // ++ / -- operator can be added here but it will only work on <Literals>
             return {SUCCESS, tree};
-
+        }
         break;
     }
     return {FAIL, head_tree};

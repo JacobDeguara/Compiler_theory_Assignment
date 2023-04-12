@@ -29,3 +29,30 @@ for ( let u : int  = 0 ; u<w; u = u+1)
         pixelr u , v ,1 ,1 ,#00ff00 ;
     }
 }
+
+
+-------------------
+if function.
+.main
+push #PC+5
+//if(
+push 1
+//)
+cjmp
+push #PC+7
+jmp
+//{
+width
+height
+sub
+//} else 
+push #PC+5
+jmp
+//{
+width
+height
+add
+//}
+halt
+
+---------

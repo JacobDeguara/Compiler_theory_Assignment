@@ -696,13 +696,28 @@ AST_token Semantic_Analysis::AdditiveOp_Analysis(shared_ptr<ASTree> additive_op,
 
     if (additive_op->text.compare("+") == 0 || additive_op->text.compare("-") == 0)
     {
+        // if any integer or float
         if ((type_left == FLOAT_LITERAL || type_left == INTEGER_LITERAL) && (type_right == FLOAT_LITERAL || type_right == INTEGER_LITERAL))
         {
+            // if either or float
             if (type_left == FLOAT_LITERAL || type_right == FLOAT_LITERAL)
             {
                 return FLOAT_LITERAL;
             }
+            // if both integer?
             return INTEGER_LITERAL;
+        }
+
+        // if any colour or integer?
+        if ((type_left == COLOUR_LITERAL || type_left == INTEGER_LITERAL) && (type_right == COLOUR_LITERAL || type_right == INTEGER_LITERAL))
+        {
+            // if both integer?
+            if (type_left == INTEGER_LITERAL && type_right == INTEGER_LITERAL)
+            {
+                return INTEGER_LITERAL;
+            }
+            // if one colour?
+            return COLOUR_LITERAL;
         }
 
         cerr << "Operator " << additive_op->text << " can only be used with float or integer type" << endl;

@@ -1,6 +1,7 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+#include <iostream>
 #include <tuple>
 #include <vector>
 #include <memory>

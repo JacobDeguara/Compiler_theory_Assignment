@@ -13,14 +13,14 @@ while ( x < 50) {
 
 x = 45;
 while (MoreThan50 ( x )) {
-    __print MoreThan50 ( x ); 
+    __print not MoreThan50 ( x ); 
     x = x + 1 ;
 }
 
 if(true){
-    let w : bool = (x/2)* x < x ;
+    let w : bool = true;
 }else {
-    let v : bool = (x/2)* x > x ;
+    let v : bool = false;
 }
 
 let w : int  = __width ;

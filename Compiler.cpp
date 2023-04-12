@@ -30,6 +30,8 @@ void Compiler::compile_file()
     if (result)
     {
         cout << "Compliation has succeded" << endl;
+        PixLang_Converter out = PixLang_Converter(new_filename);
+        out.print_tree(parser.get_root());
     }
     else
     {
