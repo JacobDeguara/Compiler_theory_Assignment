@@ -25,7 +25,6 @@ class PixLang_Converter
 {
 private:
     vector<string> code;
-    vector<variables> var_decl;
     string file_out;
 
     // exactly like block but no return
