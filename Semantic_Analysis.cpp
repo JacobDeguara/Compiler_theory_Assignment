@@ -735,7 +735,7 @@ AST_token Semantic_Analysis::Min_Max_Analysis(shared_ptr<ASTree> read_node, vect
 
     if (Expr1 == BOOL_LITERAL || Expr2 == BOOL_LITERAL)
     {
-        cerr << "You can use max and min on boolean types" << endl;
+        cerr << "You cant use max and min on boolean types" << endl;
         exit(EXIT_SUCCESS);
     }
 
@@ -896,7 +896,7 @@ AST_token Semantic_Analysis::RelationalOp_Analysis(shared_ptr<ASTree> relation_o
             return BOOL_LITERAL;
         }
 
-        if (type_left == COLOUR_LITERAL && type_right == COLOUR_LITERAL)
+        if (type_left == COLOUR_LITERAL || type_right == COLOUR_LITERAL)
         {
             return BOOL_LITERAL;
         }
