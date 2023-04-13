@@ -139,6 +139,12 @@ string AST_XML_gen::get_type_to_string(AST_token token)
         break;
     case FACTOR:
         return "Factor";
+    case MAX_MIN:
+        return "Min/Max";
+    case EXIT_PROGRAM:
+        return "Exit";
+    case FILL_CLEAR:
+        return "Fill";
     }
 
     return std::to_string(token);
@@ -179,6 +185,7 @@ void AST_XML_gen::print_XML(int height, shared_ptr<ASTree> root, bool hide)
     case FLOAT_LITERAL:
         cout << "<" << get_type_to_string(token) << ">" << root->text;
         break;
+    case MAX_MIN:
     case UNARY:
     case TYPE:
     case RELATIONALOP:

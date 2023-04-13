@@ -64,6 +64,12 @@ void Semantic_Analysis::Block_Analysis_Start(shared_ptr<ASTree> block_node)
         case FOR_STATEMENT:
             For_Analysis(item, variables_declared_list);
             break;
+        case EXIT_PROGRAM:
+            Exit_Analysis(item);
+            break;
+        case FILL_CLEAR:
+            Fill_Analysis(item, variables_declared_list);
+            break;
         default:
             cerr << item->token << " token cant be used in main" << endl;
             exit(EXIT_SUCCESS);
@@ -210,6 +216,12 @@ void Semantic_Analysis::Block_Analysis(shared_ptr<ASTree> block_node, vector<par
         case FOR_STATEMENT:
             For_Analysis(item, variables_declared_list);
             break;
+        case EXIT_PROGRAM:
+            Exit_Analysis(item);
+            break;
+        case FILL_CLEAR:
+            Fill_Analysis(item, variables_declared_list);
+            break;
         default:
             cerr << item->token << " token cant be used in main" << endl;
             exit(EXIT_SUCCESS);
@@ -285,6 +297,13 @@ void Semantic_Analysis::Function_Decliration_Analysis(shared_ptr<ASTree> func)
         }
     }
 
+    if (!return_flag)
+    {
+        cerr << "Function " << id << " must have a return statement." << endl;
+        exit(EXIT_SUCCESS);
+    }
+    return_flag = false;
+
     FUNCTION_DECLIRATION.push_back(func_item);
 }
 
@@ -345,6 +364,9 @@ void Semantic_Analysis::Block_Analysis_Func(shared_ptr<ASTree> block_node, vecto
             break;
         case FOR_STATEMENT:
             For_Analysis_Func(item, variables_declared_list, return_type);
+            break;
+        case FILL_CLEAR:
+            Fill_Analysis(item, variables_declared_list);
             break;
         default:
             cerr << item->token << " token cant be used in function decliaration" << endl;
@@ -454,6 +476,8 @@ AST_token Semantic_Analysis::Return_Analysis(shared_ptr<ASTree> return_node, vec
         exit(EXIT_FAILURE);
     }
 
+    return_flag = true;
+
     return Type_checking(return_node->Leaf.at(0), variables_declared_list);
 }
 
@@ -509,7 +533,7 @@ void Semantic_Analysis::Assignment_Analysis(shared_ptr<ASTree> assignment_node, 
 void Semantic_Analysis::Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list)
 {
     // sanity check
-    if (delay->token != PRINT_STATEMENT)
+    if (delay->token != DELAY_STATEMENT)
     {
         cerr << "DELAY not of type DELAY" << endl;
         exit(EXIT_FAILURE);
@@ -587,6 +611,40 @@ void Semantic_Analysis::Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parame
     exit(EXIT_SUCCESS);
 }
 
+void Semantic_Analysis::Exit_Analysis(shared_ptr<ASTree> exit_node)
+{
+    if (exit_node->token != EXIT_PROGRAM)
+    {
+        cerr << "__EXIT not of type __EXIT" << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+void Semantic_Analysis::Fill_Analysis(shared_ptr<ASTree> fill, vector<parameter> variables_declared_list)
+{
+    if (fill->token != FILL_CLEAR)
+    {
+        cerr << "__FILL not of type __FILL" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (fill->Leaf.size() == 0)
+    {
+        return;
+    }
+    else
+    {
+        auto Expr1 = Type_checking(fill->Leaf.at(0), variables_declared_list);
+
+        if (Expr1 == COLOUR_LITERAL)
+        {
+            return;
+        }
+
+        cerr << "Fill command must have type colour or use clear for default white" << endl;
+        exit(EXIT_SUCCESS);
+    }
+}
+
 // Type checking to be used then Finding Expr;
 AST_token Semantic_Analysis::Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list)
 {
@@ -613,6 +671,8 @@ AST_token Semantic_Analysis::Expr_analise(shared_ptr<ASTree> tree_token, vector<
         return INTEGER_LITERAL;
     case PAD_READ: // ::= colour
         return Read_Analysis(tree_token, variables_declared_list);
+    case MAX_MIN:
+        return Min_Max_Analysis(tree_token, variables_declared_list);
     case BOOL_LITERAL: // ::= bool
         return BOOL_LITERAL;
     case INTEGER_LITERAL: // ::= int
@@ -658,6 +718,40 @@ AST_token Semantic_Analysis::Read_Analysis(shared_ptr<ASTree> read_node, vector<
     }
 
     cerr << "__read can only take int type " << endl;
+    exit(EXIT_SUCCESS);
+}
+
+AST_token Semantic_Analysis::Min_Max_Analysis(shared_ptr<ASTree> read_node, vector<parameter> variables_declared_list)
+{
+    // sanity check
+    if (read_node->token != MAX_MIN)
+    {
+        cerr << "__READ not of type __MAX_MIN" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto Expr1 = Type_checking(read_node->Leaf.at(0), variables_declared_list);
+    auto Expr2 = Type_checking(read_node->Leaf.at(1), variables_declared_list);
+
+    if (Expr1 == BOOL_LITERAL || Expr2 == BOOL_LITERAL)
+    {
+        cerr << "You can use max and min on boolean types" << endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    if (Expr1 == FLOAT_LITERAL || Expr2 == FLOAT_LITERAL)
+    {
+        return FLOAT_LITERAL;
+    }
+    if (Expr1 == COLOUR_LITERAL || Expr1 == COLOUR_LITERAL)
+    {
+        return COLOUR_LITERAL;
+    }
+    if (Expr1 == INTEGER_LITERAL || Expr1 == INTEGER_LITERAL)
+    {
+        return INTEGER_LITERAL;
+    }
+
     exit(EXIT_SUCCESS);
 }
 

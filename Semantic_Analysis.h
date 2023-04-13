@@ -74,6 +74,7 @@ class Semantic_Analysis
 {
 private:
     vector<function_set> FUNCTION_DECLIRATION;
+    bool return_flag = false;
 
     void Block_Analysis_Start(shared_ptr<ASTree> block_node);
 
@@ -98,6 +99,8 @@ private:
     void Print_Analysis(shared_ptr<ASTree> print, vector<parameter> variables_declared_list);
     void Pixel_Analysis(shared_ptr<ASTree> pixel, vector<parameter> variables_declared_list);
     void Pixelr_Analysis(shared_ptr<ASTree> pixelr, vector<parameter> variables_declared_list);
+    void Exit_Analysis(shared_ptr<ASTree> exit);
+    void Fill_Analysis(shared_ptr<ASTree> fill, vector<parameter> variables_declared_list);
 
     // Type checking to be used then Finding Expr;
     AST_token Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list);
@@ -110,6 +113,7 @@ private:
     AST_token RelationalOp_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
     AST_token Read_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
     AST_token RandI_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
+    AST_token Min_Max_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
 
     parameter create_parameter_struct(string id, AST_token type)
     {

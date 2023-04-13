@@ -42,6 +42,10 @@ private:
     tuple<AST_token, shared_ptr<ASTree>> Print_Statement();
     // Delay_Statement ::= '__delay' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Delay_Statement();
+    // Fill_Statement ::= '__fill' <Expr> | '__clear'
+    tuple<AST_token, shared_ptr<ASTree>> Fill_Statement();
+    // Exit_statment ::= '__exit'
+    tuple<AST_token, shared_ptr<ASTree>> Exit_Statement();
     // Variable_Decl ::= 'let' <Identifier> ':' <Type> '=' <Expr>
     tuple<AST_token, shared_ptr<ASTree>> Variable_Decl();
     // Assigment ::= <Identifier> '=' <Expr>
@@ -72,6 +76,8 @@ private:
     tuple<AST_token, shared_ptr<ASTree>> Pad_Width();
     // Pad_Height ::= '__height'
     tuple<AST_token, shared_ptr<ASTree>> Pad_Height();
+    // ::= '__max' <Expr>','<Expr> , '__min' <Expr>','<Expr>
+    tuple<AST_token, shared_ptr<ASTree>> Pad_Min_Max();
 
 public:
     Parser(string file_name);

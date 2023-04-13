@@ -19,8 +19,8 @@ enum token_type
     ColourLiteral,       // ::= '#' <Hex> <Hex> <Hex> <Hex> <Hex> <Hex>
     Type,                // ::= 'float' | 'int' | 'bool' | 'colour'
     StatementOp,         // ::= 'return' | 'if' | 'for' | 'while' |'else'
-    SpecialStatementsOp, // ::= '__print' | '__delay' | '__pixelr' | '__pixel'
-    PadOp,               // ::= '__width' | '__height' | '__read' | '__randi'
+    SpecialStatementsOp, // ::= '__print' | '__delay' | '__pixelr' | '__pixel' | '__fill' | '__clear' | '__exit'
+    PadOp,               // ::= '__width' | '__height' | '__read' | '__randi' | '__max' | '__min'
     Declarator,          // ::= 'let'
     Func,                // ::= 'fun'
     Identifier,          // ::=  ( <Letter> | '_' ) { '_' | <Letter> | <Digit>}
@@ -68,7 +68,7 @@ enum AST_token
     EXPR,             // ::= <SimpleExpr> { <RelationalOp> <SimpleExpr> }
     SIMPLE_EXPR,      // ::= <Term> { <AdditiveOp> <Term> }
     TERM,             // ::= <Factor> { <MultiplicativeOp> <Factor> }
-    FACTOR,           // ::= <Literal> | <Identifier> | <FunctionCall> | <SubExpr> | <Unary> | <PadRandI> | <PadWidth> | <PadHeight> | <PadRead>
+    FACTOR,           // ::= <Literal> | <Identifier> | <FunctionCall> | <SubExpr> | <Unary> | <PadRandI> | <PadWidth> | <PadHeight> | <PadRead> | <Min_Max>
     LITERAL,          // ::= <BooleanLiteral> | <IntegerLiteral> | <FloatLiteral> | <ColourLiteral> | <PadWidth> | <PadHeight> | <PadRead>
     FUNCTION_CALL,    // ::= <Identifier> '(' [ <ActualParams> ] ')'
     SUB_EXPR,         // ::= '(' <Expr> ')'
@@ -87,7 +87,17 @@ enum AST_token
     ADDITIVEOP,       // ::= '+' | '-' | 'or'
     MULTIPLICATIVEOP, // ::= '*' | '/' | 'and'
     TYPE,             // ::= 'float' | 'int' | 'bool' | 'colour'
+    MAX_MIN,          // ::= '__max' <Expr>','<Expr> , '__min' <Expr>','<Expr>
+    EXIT_PROGRAM,     // ::= '__exit'
+    FILL_CLEAR,       // ::= '__fill' <Expr> | '__clear'
 };
+
+/*
+    What to add to ^ are;
+    max(x,y) & min(x,y)
+    exit()
+    clear & fill(x)
+*/
 
 struct ASTree
 {

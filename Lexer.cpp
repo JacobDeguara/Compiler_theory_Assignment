@@ -312,6 +312,18 @@ tuple<string, token_type> Lexer::identify(tuple<string, token_type> token)
         {
             type = Func;
         }
+        else if (token_name.compare("__max") == 0 || token_name.compare("__min") == 0)
+        {
+            type = PadOp;
+        }
+        else if (token_name.compare("__exit") == 0)
+        {
+            type = SpecialStatementsOp;
+        }
+        else if (token_name.compare("__clear") == 0 || token_name.compare("__fill") == 0)
+        {
+            type = SpecialStatementsOp;
+        }
     }
 
     return {token_name, type};
