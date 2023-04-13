@@ -152,6 +152,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
+                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -174,6 +175,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
+                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -196,6 +198,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
+                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -218,6 +221,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
+                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -240,6 +244,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
+                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -566,6 +571,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Formal_Parameter()
         lexer.get_next(); // RULE 1
         return {SUCCESS, head_tree};
     }
+    cerr << "Syntax Error: missing Type" << endl;
     return {FAIL, head_tree};
 }
 
@@ -1697,7 +1703,6 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Unary()
             // this returns the tree since; '+' <Expr> ::= <Expr>
         }
     }
-    cerr << "Syntax Error: Something is missing" << endl;
     return {FAIL, head_tree};
 }
 
