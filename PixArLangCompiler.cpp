@@ -6,7 +6,7 @@
 int main()
 {
     Compiler cmp = Compiler();
-    /*
+
     cout << "Which file do you want to be compiled?" << endl;
     string file_in;
     cin >> file_in;
@@ -46,12 +46,6 @@ int main()
             }
         }
     }
-    */
 
-    cmp.change_file("test.txt");
-    cmp.set_return_file("result.txt");
-    // cmp.enable_lexer_echo();
-    cmp.enable_AST_XML_generator();
-    cmp.show_hidden_XML_nodes();
     cmp.compile_file();
 }
