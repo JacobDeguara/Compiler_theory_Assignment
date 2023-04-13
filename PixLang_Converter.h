@@ -56,6 +56,7 @@ private:
     void convert_return(shared_ptr<ASTree> node, vector<variables> v);
     // <Function_Call> | <Unary> | <identifier> | <randi> | <read> | <height> | <width> | <number> | <bool> | <>
     void convert_expr(shared_ptr<ASTree> node, vector<variables> v);
+    // convert_expr -> convert_expr2 to make it easier to deal with Expr
     void convert_expr2(shared_ptr<ASTree> node, vector<variables> v);
     // <identifier> ( <Actual_Params> = { <Expr> } )
     void convert_function_call(shared_ptr<ASTree> node, vector<variables> v);
@@ -71,31 +72,36 @@ private:
     void convert_width(shared_ptr<ASTree> node);
     // nothing
     void convert_height(shared_ptr<ASTree> node);
-
+    // <Expr> <Expr>
     void convert_additive(shared_ptr<ASTree> node, vector<variables> v);
-
+    // <Expr> <Expr>
     void convert_multiplicative(shared_ptr<ASTree> node, vector<variables> v);
-
+    // <Expr> <Expr>
     void convert_relational(shared_ptr<ASTree> node, vector<variables> v);
-
+    // nothing
     void convert_exit(shared_ptr<ASTree> node);
+    // <Expr> <Expr>
     void convert_min_max(shared_ptr<ASTree> node, vector<variables> v);
+    // <Expr> | nothing
     void convert_fill(shared_ptr<ASTree> node, vector<variables> v);
 
+    // this is to get the right number for pos based on scope value
     size_t variable_size_based_on_scope(vector<variables> v, int scope_value);
 
-public:
-    PixLang_Converter(string file_out);
+    // prints the code vector to out file
     void print_code_to_file();
+
+public:
+    // sets up file out
+    PixLang_Converter(string file_out);
+
+    // this is to test file out if needed
     void test();
 
-    void print_tree(shared_ptr<ASTree> start_node);
-    // <Block>
+    // prints code from tree to file
+    void print_code(shared_ptr<ASTree> start_node);
 
     ~PixLang_Converter() = default;
 };
-
-// and -> min
-// or -> max
 
 #endif // __PIXLANG_CONVERTER_H__

@@ -18,12 +18,19 @@ private:
 
 public:
     Compiler();
+
+    // chnages input file
     void change_file(string file);
-    void compile_file();
+    // echo's lexer output
     void enable_lexer_echo();
+    // generates XML for tree
     void enable_AST_XML_generator();
+    // shows XML hidden nodes (<Expr> / <Block>)
     void show_hidden_XML_nodes();
+    // changes return file
     void set_return_file(string file);
+    // compiles the file
+    void compile_file();
     ~Compiler() = default;
 };
 

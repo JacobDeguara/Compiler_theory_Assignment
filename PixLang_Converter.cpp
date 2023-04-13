@@ -31,9 +31,11 @@ void PixLang_Converter::test()
     code.push_back(".main");
     code.push_back("print 1");
     code.push_back("halt");
+
+    print_code_to_file();
 }
 
-void PixLang_Converter::print_tree(shared_ptr<ASTree> start_node)
+void PixLang_Converter::print_code(shared_ptr<ASTree> start_node)
 {
 
     convert_program(start_node);

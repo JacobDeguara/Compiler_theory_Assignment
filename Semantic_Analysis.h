@@ -78,21 +78,21 @@ private:
 
     void Block_Analysis_Start(shared_ptr<ASTree> block_node);
 
-    // Function declirations
+    // These functions are for when we enter func
     void Function_Decliration_Analysis(shared_ptr<ASTree> func);
     void Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type);
     void While_Analysis_Func(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list, AST_token return_type);
     void For_Analysis_Func(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list, AST_token return_type);
     void If_Analysis_Func(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list, AST_token return_type);
+    AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list);
 
-    // functions with block
+    // These are block analysis functions that are repeat block analysis
     void Block_Analysis(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list);
     void While_Analysis(shared_ptr<ASTree> while_node, vector<parameter> variables_declared_list);
     void For_Analysis(shared_ptr<ASTree> for_node, vector<parameter> variables_declared_list);
     void If_Analysis(shared_ptr<ASTree> if_node, vector<parameter> variables_declared_list);
 
-    // Type checking with comparision
-    AST_token Return_Analysis(shared_ptr<ASTree> return_node, vector<parameter> variables_declared_list);
+    // These are used in block analysis but work on their on their own
     parameter Variable_decl_Analysis(shared_ptr<ASTree> variable_decl_node, vector<parameter> variables_declared_list);
     void Assignment_Analysis(shared_ptr<ASTree> assignment_node, vector<parameter> variables_declared_list);
     void Delay_Analysis(shared_ptr<ASTree> delay, vector<parameter> variables_declared_list);
@@ -102,7 +102,7 @@ private:
     void Exit_Analysis(shared_ptr<ASTree> exit);
     void Fill_Analysis(shared_ptr<ASTree> fill, vector<parameter> variables_declared_list);
 
-    // Type checking to be used then Finding Expr;
+    // Type checking to be used then Finding Expr
     AST_token Type_checking(shared_ptr<ASTree> Expr, vector<parameter> variables_declared_list);
     AST_token Expr_analise(shared_ptr<ASTree> tree_token, vector<parameter> variables_declared_list);
     AST_token Unary_Analysis(shared_ptr<ASTree> unary, vector<parameter> variables_declared_list);
@@ -115,6 +115,7 @@ private:
     AST_token RandI_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
     AST_token Min_Max_Analysis(shared_ptr<ASTree> identifier, vector<parameter> variables_declared_list);
 
+    // creates a new parameter
     parameter create_parameter_struct(string id, AST_token type)
     {
         parameter temp;
@@ -123,6 +124,7 @@ private:
         return temp;
     }
 
+    // creates a new function set
     function_set create_function_set_struct(string id, AST_token return_type)
     {
         function_set temp;
@@ -131,6 +133,7 @@ private:
         return temp;
     }
 
+    // checks if function call exists
     tuple<bool, int> if_exists_function_call(string id)
     {
         int i;
@@ -144,6 +147,7 @@ private:
         return {false, -1};
     }
 
+    // checks if variable exists
     tuple<bool, int> if_exists_variable(string id, vector<parameter> variables_declared_list)
     {
         int i;
@@ -158,6 +162,7 @@ private:
         return {false, -1};
     }
 
+    // converts from text to AST_TOKEN
     AST_token type_converter(string type)
     {
         if (type.compare("int") == 0)
@@ -180,8 +185,11 @@ private:
     }
 
 public:
-    Semantic_Analysis(/* args */);
+    Semantic_Analysis();
+
     ~Semantic_Analysis() = default;
+
+    // Analyses the program and exists when it failes
     void Program_Analysis(shared_ptr<ASTree> program);
 };
 

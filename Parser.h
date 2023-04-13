@@ -85,12 +85,15 @@ public:
     // Creates a new node
     shared_ptr<ASTree> ASTree_node_create(AST_token token);
 
+    // gets the root
     shared_ptr<ASTree> get_root()
     {
         return root;
     }
 
+    // compiles the file with flags (returns true if successfull)
     bool Compile(bool echo, bool print_tree, bool show_hidden);
+
     ~Parser() = default;
 };
 
