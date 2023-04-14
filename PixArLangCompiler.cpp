@@ -6,7 +6,6 @@
 int main()
 {
     Compiler cmp = Compiler();
-
     cout << "Which file do you want to be compiled?" << endl;
     string file_in;
     cin >> file_in;
@@ -46,6 +45,5 @@ int main()
             }
         }
     }
-
     cmp.compile_file();
 }

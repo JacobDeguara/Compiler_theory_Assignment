@@ -26,6 +26,7 @@ class PixLang_Converter
 private:
     vector<string> code;
     string file_out;
+    int amount_of_vaiables_declared = 0;
 
     // exactly like block but no return
     void convert_program(shared_ptr<ASTree> node);

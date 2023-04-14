@@ -291,7 +291,7 @@ void Semantic_Analysis::Function_Decliration_Analysis(shared_ptr<ASTree> func)
         case BLOCK:
             func_item = create_function_set_struct(id, type);
             func_item.parameters = variable_list; // this is a copy so 'func_item.parameters' is not the same memory as 'variable_list'
-            // since block is always at the end of the Leaf, type and variable list will have something.
+            FUNCTION_DECLIRATION.push_back(func_item);
             Block_Analysis_Func(item, variable_list, type);
             break;
         }
@@ -303,8 +303,6 @@ void Semantic_Analysis::Function_Decliration_Analysis(shared_ptr<ASTree> func)
         exit(EXIT_SUCCESS);
     }
     return_flag = false;
-
-    FUNCTION_DECLIRATION.push_back(func_item);
 }
 
 void Semantic_Analysis::Block_Analysis_Func(shared_ptr<ASTree> block_node, vector<parameter> variables_declared_list, AST_token return_type)

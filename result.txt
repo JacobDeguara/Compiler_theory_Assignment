@@ -1,0 +1,516 @@
+
+.main
+push 1
+oframe
+push 10
+alloc
+push #0000ff
+clear
+push 0
+push 0
+push 0
+st
+push 0
+push 1
+push 0
+st
+push 27
+push 5
+push 2
+push .rand
+call
+push 2
+push 0
+st
+push 6
+height
+sub
+push 3
+push 2
+push .rand
+call
+push 3
+push 0
+st
+width
+push 4
+push 0
+st
+push 8
+push 5
+push 0
+st
+push 8
+push 6
+push 0
+st
+width
+push 7
+push 0
+st
+push 6
+push 8
+push 0
+st
+push 6
+push 9
+push 0
+st
+push [5:0]
+print
+push #PC+5
+push 1
+cjmp
+push #PC+154
+jmp
+push #0000ff
+clear
+push [6:0]
+push [2:0]
+push [5:0]
+push [4:0]
+push 4
+push .colour_pipe
+call
+push 0
+push 0
+st
+push #PC+13
+push #PC+8
+push 0
+push [4:0]
+eq
+cjmp
+push 1
+push #PC+3
+jmp
+push 0
+cjmp
+push #PC+8
+jmp
+push 1
+push [4:0]
+sub
+push 4
+push 0
+st
+push #PC+7
+push 0
+push [4:0]
+eq
+cjmp
+push #PC+8
+jmp
+push 1
+push [5:0]
+sub
+push 5
+push 0
+st
+push #PC+7
+push 0
+push [5:0]
+eq
+cjmp
+push #PC+18
+jmp
+push 27
+push 5
+push 2
+push .rand
+call
+push 2
+push 0
+st
+width
+push 4
+push 0
+st
+push 8
+push 5
+push 0
+st
+push #PC+7
+push 14
+push [4:0]
+eq
+cjmp
+push #PC+6
+jmp
+push 1
+push 1
+push 0
+st
+push #PC+5
+push [1:0]
+cjmp
+push #PC+67
+jmp
+push [9:0]
+push [3:0]
+push [8:0]
+push [7:0]
+push 4
+push .colour_pipe
+call
+push 0
+push 0
+st
+push #PC+13
+push #PC+8
+push 0
+push [7:0]
+eq
+cjmp
+push 1
+push #PC+3
+jmp
+push 0
+cjmp
+push #PC+8
+jmp
+push 1
+push [7:0]
+sub
+push 7
+push 0
+st
+push #PC+7
+push 0
+push [7:0]
+eq
+cjmp
+push #PC+8
+jmp
+push 1
+push [8:0]
+sub
+push 8
+push 0
+st
+push #PC+7
+push 0
+push [8:0]
+eq
+cjmp
+push #PC+18
+jmp
+push 27
+push 5
+push 2
+push .rand
+call
+push 3
+push 0
+st
+width
+push 7
+push 0
+st
+push 8
+push 8
+push 0
+st
+push 40
+delay
+push #PC-155
+jmp
+cframe
+halt
+//
+.colour_pipe
+push #00ff00
+height
+push [1:0]
+push 0
+push [0:0]
+pixelr
+push #0000ff
+push [3:0]
+push [1:0]
+push [2:0]
+push [0:0]
+pixelr
+push 1
+ret
+//
+.rand
+push [1:0]
+irnd
+push 2
+push 1
+st
+push #PC+7
+push [0:0]
+push [2:1]
+lt
+cjmp
+push #PC+9
+jmp
+push [1:0]
+irnd
+push 2
+push 1
+st
+push #PC-12
+jmp
+push [2:1]
+ret
+
+.main
+push 1
+oframe
+push 10
+alloc
+push #0000ff
+clear
+push 0
+push 0
+push 0
+st
+push 0
+push 1
+push 0
+st
+push 27
+push 5
+push 2
+push .rand
+call
+push 2
+push 0
+st
+push 6
+height
+sub
+push 3
+push 2
+push .rand
+call
+push 3
+push 0
+st
+width
+push 4
+push 0
+st
+push 8
+push 5
+push 0
+st
+push 8
+push 6
+push 0
+st
+width
+push 7
+push 0
+st
+push 6
+push 8
+push 0
+st
+push 6
+push 9
+push 0
+st
+push [5:0]
+print
+push #PC+5
+push 1
+cjmp
+push #PC+154
+jmp
+push #0000ff
+clear
+push [6:0]
+push [2:0]
+push [5:0]
+push [4:0]
+push 4
+push .colour_pipe
+call
+push 0
+push 0
+st
+push #PC+13
+push #PC+8
+push 0
+push [4:0]
+eq
+cjmp
+push 1
+push #PC+3
+jmp
+push 0
+cjmp
+push #PC+8
+jmp
+push 1
+push [4:0]
+sub
+push 4
+push 0
+st
+push #PC+7
+push 0
+push [4:0]
+eq
+cjmp
+push #PC+8
+jmp
+push 1
+push [5:0]
+sub
+push 5
+push 0
+st
+push #PC+7
+push 0
+push [5:0]
+eq
+cjmp
+push #PC+18
+jmp
+push 27
+push 5
+push 2
+push .rand
+call
+push 2
+push 0
+st
+width
+push 4
+push 0
+st
+push 8
+push 5
+push 0
+st
+push #PC+7
+push 14
+push [4:0]
+eq
+cjmp
+push #PC+6
+jmp
+push 1
+push 1
+push 0
+st
+push #PC+5
+push [1:0]
+cjmp
+push #PC+67
+jmp
+push [9:0]
+push [3:0]
+push [8:0]
+push [7:0]
+push 4
+push .colour_pipe
+call
+push 0
+push 0
+st
+push #PC+13
+push #PC+8
+push 0
+push [7:0]
+eq
+cjmp
+push 1
+push #PC+3
+jmp
+push 0
+cjmp
+push #PC+8
+jmp
+push 1
+push [7:0]
+sub
+push 7
+push 0
+st
+push #PC+7
+push 0
+push [7:0]
+eq
+cjmp
+push #PC+8
+jmp
+push 1
+push [8:0]
+sub
+push 8
+push 0
+st
+push #PC+7
+push 0
+push [8:0]
+eq
+cjmp
+push #PC+18
+jmp
+push 27
+push 5
+push 2
+push .rand
+call
+push 3
+push 0
+st
+width
+push 7
+push 0
+st
+push 8
+push 8
+push 0
+st
+push 40
+delay
+push #PC-155
+jmp
+cframe
+halt
+//
+.colour_pipe
+push #00ff00
+height
+push [1:0]
+push 0
+push [0:0]
+pixelr
+push #0000ff
+push [3:0]
+push [1:0]
+push [2:0]
+push [0:0]
+pixelr
+push 1
+ret
+//
+.rand
+push [1:0]
+irnd
+push 2
+push 1
+st
+push #PC+7
+push [0:0]
+push [2:1]
+lt
+cjmp
+push #PC+9
+jmp
+push [1:0]
+irnd
+push 2
+push 1
+st
+push #PC-12
+jmp
+push [2:1]
+ret

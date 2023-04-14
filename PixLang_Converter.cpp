@@ -52,6 +52,13 @@ void PixLang_Converter::convert_program(shared_ptr<ASTree> node)
 
     code.push_back(".main");
 
+    size_t alloc_pos;
+    code.push_back("push 1");
+    code.push_back("oframe");
+    alloc_pos = code.size();
+    code.push_back("push ");
+    code.push_back("alloc");
+
     auto node_items = node->Leaf;
 
     vector<variables> v;
@@ -83,13 +90,13 @@ void PixLang_Converter::convert_program(shared_ptr<ASTree> node)
             convert_pixelr(item, v);
             break;
         case WHILE_STATEMENT:
-            convert_while(item, v, 1);
+            convert_while(item, v, 0);
             break;
         case IF_STATEMENT:
-            convert_if(item, v, 1);
+            convert_if(item, v, 0);
             break;
         case FOR_STATEMENT:
-            convert_for(item, v, 1);
+            convert_for(item, v, 0);
             break;
         case FILL_CLEAR:
             convert_fill(item, v);
@@ -101,6 +108,10 @@ void PixLang_Converter::convert_program(shared_ptr<ASTree> node)
             break;
         }
     }
+
+    code.at(alloc_pos).append(to_string(amount_of_vaiables_declared));
+
+    code.push_back("cframe");
     code.push_back("halt");
 
     for (size_t i = 0; i < node_items.size(); i++)
@@ -128,11 +139,13 @@ void PixLang_Converter::convert_block(shared_ptr<ASTree> node, vector<variables>
     for (size_t i = 0; i < node_items.size(); i++)
     {
         auto item = node_items.at(i);
+        variables temp;
 
         switch (item->token)
         {
         case VARIABLE_DECL:
-            convert_variable_decliration(item, v, scope_value++);
+            temp = convert_variable_decliration(item, v, scope_value);
+            v.push_back(temp);
             break;
         case ASSIGNMENT:
             convert_assignment(item, v);
@@ -150,13 +163,13 @@ void PixLang_Converter::convert_block(shared_ptr<ASTree> node, vector<variables>
             convert_pixelr(item, v);
             break;
         case WHILE_STATEMENT:
-            convert_while(item, v, scope_value++);
+            convert_while(item, v, scope_value);
             break;
         case IF_STATEMENT:
-            convert_if(item, v, scope_value++);
+            convert_if(item, v, scope_value);
             break;
         case FOR_STATEMENT:
-            convert_for(item, v, scope_value++);
+            convert_for(item, v, scope_value);
             break;
         case RTRN_STATEMENT:
             convert_return(item, v);
@@ -194,7 +207,7 @@ void PixLang_Converter::convert_if(shared_ptr<ASTree> node, vector<variables> v,
     code.push_back("jmp");
     firstjumpsize = code.size();
 
-    convert_block(node->Leaf.at(1), v, scope_value++);
+    convert_block(node->Leaf.at(1), v, scope_value);
 
     if (node->Leaf.size() > 2)
     {
@@ -203,7 +216,7 @@ void PixLang_Converter::convert_if(shared_ptr<ASTree> node, vector<variables> v,
         code.push_back("jmp");
         secondjumpsize = code.size();
 
-        convert_block(node->Leaf.at(1), v, scope_value++);
+        convert_block(node->Leaf.at(1), v, scope_value);
 
         thirdjumpsize = code.size();
 
@@ -238,7 +251,7 @@ void PixLang_Converter::convert_while(shared_ptr<ASTree> node, vector<variables>
     code.push_back("jmp");
     firstjumpsize = code.size();
 
-    convert_block(node->Leaf.at(1), v, scope_value++);
+    convert_block(node->Leaf.at(1), v, scope_value);
 
     thirdposition = code.size();
     code.push_back("push #PC-");
@@ -265,7 +278,7 @@ void PixLang_Converter::convert_for(shared_ptr<ASTree> node, vector<variables> v
         switch (node->Leaf.at(i)->token)
         {
         case VARIABLE_DECL:
-            var_x = convert_variable_decliration(node->Leaf.at(i), v, scope_value++);
+            var_x = convert_variable_decliration(node->Leaf.at(i), v, scope_value);
             v.push_back(var_x);
             break;
         case EXPR:
@@ -281,7 +294,7 @@ void PixLang_Converter::convert_for(shared_ptr<ASTree> node, vector<variables> v
             firstjumpsize = code.size();
             break;
         case BLOCK:
-            convert_block(node->Leaf.at(i), v, scope_value++);
+            convert_block(node->Leaf.at(i), v, scope_value);
             break;
         }
     }
@@ -317,15 +330,17 @@ variables PixLang_Converter::convert_variable_decliration(shared_ptr<ASTree> nod
 
     convert_expr(node->Leaf.at(2), v); // value
 
-    code.push_back("push " + to_string(variable_size_based_on_scope(v, scope_value))); // position
-    code.push_back("push " + to_string(scope_value));                                  // frame
+    code.push_back("push " + to_string(v.size()));    // position
+    code.push_back("push " + to_string(scope_value)); // frame
     code.push_back("st");
 
     variables var_x;
     var_x.id = identifier;
-    var_x.call = "push [" + to_string(variable_size_based_on_scope(v, scope_value)) + ":" + to_string(scope_value) + "]";
-    var_x.pos = variable_size_based_on_scope(v, scope_value);
+    var_x.call = "push [" + to_string(v.size()) + ":" + to_string(scope_value) + "]";
+    var_x.pos = v.size();
     var_x.frame = scope_value;
+
+    amount_of_vaiables_declared++;
     return var_x;
 }
 

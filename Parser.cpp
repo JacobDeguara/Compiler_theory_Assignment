@@ -126,7 +126,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             return {SUCCESS, tree};
         }
 
-        cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+        cerr << "Syntax Error: missing ';' after Assignment" << endl;
         return {FAIL, head_tree};
         break;
     case SpecialStatementsOp: // <PrintStatement> ';'| <DelayStatement> ';' | <PixelStatement> ';'
@@ -152,7 +152,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
-                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                cerr << "Syntax Error: missing ';' after print statement" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -175,7 +175,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
-                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                cerr << "Syntax Error: missing ';' after fill or clear statement" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -198,7 +198,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
-                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                cerr << "Syntax Error: missing ';' after exit statement" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -221,7 +221,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
-                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                cerr << "Syntax Error: missing ';' after delay" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -244,7 +244,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
             }
             else
             {
-                cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                cerr << "Syntax Error: missing ';' after pixel statement" << endl;
                 return {FAIL, head_tree};
             }
         }
@@ -300,7 +300,7 @@ tuple<AST_token, shared_ptr<ASTree>> Parser::Statement()
                 }
                 else
                 {
-                    cerr << "Syntax Error: missing ';' after variable decliration" << endl;
+                    cerr << "Syntax Error: missing ';' after Return statement" << endl;
                     return {FAIL, head_tree};
                 }
                 break;
