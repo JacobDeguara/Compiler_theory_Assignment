@@ -330,14 +330,14 @@ variables PixLang_Converter::convert_variable_decliration(shared_ptr<ASTree> nod
 
     convert_expr(node->Leaf.at(2), v); // value
 
-    code.push_back("push " + to_string(v.size()));    // position
-    code.push_back("push " + to_string(scope_value)); // frame
+    code.push_back("push " + to_string(variable_size_based_on_scope(v, scope_value))); // position
+    code.push_back("push " + to_string(scope_value));                                  // frame
     code.push_back("st");
 
     variables var_x;
     var_x.id = identifier;
-    var_x.call = "push [" + to_string(v.size()) + ":" + to_string(scope_value) + "]";
-    var_x.pos = v.size();
+    var_x.call = "push [" + to_string(variable_size_based_on_scope(v, scope_value)) + ":" + to_string(scope_value) + "]";
+    var_x.pos = variable_size_based_on_scope(v, scope_value);
     var_x.frame = scope_value;
 
     amount_of_vaiables_declared++;
@@ -347,6 +347,7 @@ variables PixLang_Converter::convert_variable_decliration(shared_ptr<ASTree> nod
 size_t PixLang_Converter::variable_size_based_on_scope(vector<variables> v, int scope_value)
 {
     size_t count = 0;
+
     for (size_t i = 0; i < v.size(); i++)
     {
         if (v.at(i).frame == scope_value)
@@ -447,10 +448,15 @@ void PixLang_Converter::convert_function_decl(shared_ptr<ASTree> node)
         cerr << "node token isnt FUNCTION_DECL" << endl;
         return;
     }
-
+    amount_of_vaiables_declared = 0;
     auto identifier = node->Leaf.at(0)->text;
 
     code.push_back("." + identifier);
+
+    size_t alloc_pos;
+    alloc_pos = code.size();
+    code.push_back("push ");
+    code.push_back("alloc");
 
     vector<shared_ptr<ASTree>> params;
     for (size_t i = 0; i < node->Leaf.size(); i++)
@@ -467,13 +473,15 @@ void PixLang_Converter::convert_function_decl(shared_ptr<ASTree> node)
     {
         variables v;
         v.id = params.at(i)->Leaf.at(0)->text;
-        v.call = "push [" + to_string(i) + ":0]";
+        v.call = "push [" + to_string(i) + "]";
         v.pos = i;
         v.frame = 0;
         var_N.push_back(v);
     }
 
     convert_block(node->Leaf.at(node->Leaf.size() - 1), var_N, 1);
+
+    code.at(alloc_pos).append(to_string(amount_of_vaiables_declared));
 }
 void PixLang_Converter::convert_return(shared_ptr<ASTree> node, vector<variables> v)
 {
