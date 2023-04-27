@@ -61,7 +61,7 @@ print
 push #PC+5
 push 1
 cjmp
-push #PC+154
+push #PC+142
 jmp
 push #0000ff
 clear
@@ -75,16 +75,74 @@ call
 push 0
 push 0
 st
-push #PC+13
-push #PC+8
+push #PC+5
+push [1:0]
+cjmp
+push #PC+61
+jmp
+push [9:0]
+push [3:0]
+push [8:0]
+push [7:0]
+push 4
+push .colour_pipe
+call
 push 0
-push [4:0]
+push 0
+st
+push #PC+7
+push 0
+push [7:0]
+neq
+cjmp
+push #PC+8
+jmp
+push 1
+push [7:0]
+sub
+push 7
+push 0
+st
+push #PC+7
+push 0
+push [7:0]
 eq
 cjmp
-push 1
-push #PC+3
+push #PC+8
 jmp
+push 1
+push [8:0]
+sub
+push 8
 push 0
+st
+push #PC+7
+push 0
+push [8:0]
+eq
+cjmp
+push #PC+18
+jmp
+push 27
+push 5
+push 2
+push .rand
+call
+push 3
+push 0
+st
+width
+push 7
+push 0
+st
+push 8
+push 8
+push 0
+st
+push #PC+7
+push 0
+push [4:0]
+neq
 cjmp
 push #PC+8
 jmp
@@ -141,79 +199,9 @@ push 1
 push 1
 push 0
 st
-push #PC+5
-push [1:0]
-cjmp
-push #PC+67
-jmp
-push [9:0]
-push [3:0]
-push [8:0]
-push [7:0]
-push 4
-push .colour_pipe
-call
-push 0
-push 0
-st
-push #PC+13
-push #PC+8
-push 0
-push [7:0]
-eq
-cjmp
-push 1
-push #PC+3
-jmp
-push 0
-cjmp
-push #PC+8
-jmp
-push 1
-push [7:0]
-sub
-push 7
-push 0
-st
-push #PC+7
-push 0
-push [7:0]
-eq
-cjmp
-push #PC+8
-jmp
-push 1
-push [8:0]
-sub
-push 8
-push 0
-st
-push #PC+7
-push 0
-push [8:0]
-eq
-cjmp
-push #PC+18
-jmp
-push 27
-push 5
-push 2
-push .rand
-call
-push 3
-push 0
-st
-width
-push 7
-push 0
-st
-push 8
-push 8
-push 0
-st
 push 40
 delay
-push #PC-155
+push #PC-143
 jmp
 cframe
 halt

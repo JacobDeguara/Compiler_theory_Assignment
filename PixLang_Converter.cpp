@@ -587,7 +587,10 @@ void PixLang_Converter::convert_additive(shared_ptr<ASTree> node, vector<variabl
     }
     else if (text.compare("or") == 0)
     {
+        code.push_back("or");
+        /*
         code.push_back("max");
+        */
     }
 }
 void PixLang_Converter::convert_multiplicative(shared_ptr<ASTree> node, vector<variables> v)
@@ -613,7 +616,10 @@ void PixLang_Converter::convert_multiplicative(shared_ptr<ASTree> node, vector<v
     }
     else if (text.compare("and") == 0)
     {
+        code.push_back("and");
+        /*
         code.push_back("min");
+        */
     }
 }
 void PixLang_Converter::convert_relational(shared_ptr<ASTree> node, vector<variables> v)
@@ -626,10 +632,12 @@ void PixLang_Converter::convert_relational(shared_ptr<ASTree> node, vector<varia
 
     auto text = node->text;
     auto firstposition = code.size(); // #PC
+    /*
     if (text.compare("!=") == 0)
     {
         code.push_back("push #PC+");
     }
+    */
 
     // flipped since order is important
     convert_expr2(node->Leaf.at(1), v);
@@ -657,6 +665,8 @@ void PixLang_Converter::convert_relational(shared_ptr<ASTree> node, vector<varia
     }
     else if (text.compare("!=") == 0)
     {
+        code.push_back("neq");
+        /*
         code.push_back("eq");
         code.push_back("cjmp");
         code.push_back("push 1");
@@ -669,6 +679,7 @@ void PixLang_Converter::convert_relational(shared_ptr<ASTree> node, vector<varia
 
         code.at(firstposition).append(to_string(firstjumpsize - firstposition));
         code.at(secondposition).append(to_string(secondjumpsize - secondposition));
+        */
     }
 }
 
@@ -712,15 +723,19 @@ void PixLang_Converter::convert_unary(shared_ptr<ASTree> node, vector<variables>
 
     auto firstposition = code.size(); // #PC
 
+    /*
     if (text.compare("!") == 0 || text.compare("not") == 0)
     {
         code.push_back("push #PC+");
     }
+    */
 
     convert_expr(node->Leaf.at(0), v);
 
     if (text.compare("!") == 0 || text.compare("not") == 0)
     {
+        code.push_back("not");
+        /*
         code.push_back("cjmp");
         code.push_back("push 1");
         auto secondposition = code.size();
@@ -732,6 +747,7 @@ void PixLang_Converter::convert_unary(shared_ptr<ASTree> node, vector<variables>
 
         code.at(firstposition).append(to_string(firstjumpsize - firstposition));
         code.at(secondposition).append(to_string(secondjumpsize - secondposition));
+        */
     }
     else if (text.compare("-") == 0)
     {
