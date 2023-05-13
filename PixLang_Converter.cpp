@@ -216,7 +216,7 @@ void PixLang_Converter::convert_if(shared_ptr<ASTree> node, vector<variables> v,
         code.push_back("jmp");
         secondjumpsize = code.size();
 
-        convert_block(node->Leaf.at(1), v, scope_value);
+        convert_block(node->Leaf.at(2), v, scope_value);
 
         thirdjumpsize = code.size();
 
