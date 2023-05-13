@@ -2,6 +2,7 @@
 #define __AST_XML_GEN_H__
 
 #include <memory>
+#include <iostream>
 #include "enums.h"
 
 using namespace std;
