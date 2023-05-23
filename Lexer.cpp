@@ -290,17 +290,24 @@ tuple<std::string, token_type> Lexer::get_next()
     auto file(open_file());
 
     /* --- unpack elements (string, state) --- */
-
     string str;
     state state_s;
-    std::tie(str, state_s) = get_next_token(file);
+    do
+    {
+        std::tie(str, state_s) = get_next_token(file);
 
+        if (state_s == start_state)
+        { // this is an error condition
+            file.get();
+        }
+    } while (state_s == start_state);
     /* --- get final state type --- */
     token_type final_type = get_final_state(state_s);
 
     /* --- if final_state error exit --- */
     if (final_type == error_token_type)
     {
+
         cout << "error occured when lexing the tokens (probs: have #123456 not up to 6 hexes)" << endl;
         exit(EXIT_SUCCESS);
     }
